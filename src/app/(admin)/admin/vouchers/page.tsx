@@ -59,6 +59,7 @@ import {
 	type CreateVoucherRequest,
 	type UpdateVoucherRequest,
 } from '@/services/voucher-service';
+import { formatCurrency } from '@/utils/format-currency';
 
 const STATUS_OPTIONS = [
 	{ value: 'all', label: 'Tất cả trạng thái' },
@@ -246,10 +247,7 @@ const VouchersPage = () => {
 	};
 
 	const isVoucherActive = (voucher: Voucher) => {
-		const now = new Date();
-		const validFrom = new Date(voucher.valid_from);
-		const validTo = new Date(voucher.valid_to);
-		return voucher.is_active && now >= validFrom && now <= validTo && voucher.used_count < voucher.max_uses;
+		return voucher.is_active;
 	};
 
 	const filteredVouchers =
@@ -286,7 +284,11 @@ const VouchersPage = () => {
 
 	const activeVouchers = vouchersData?.vouchers?.filter((voucher) => isVoucherActive(voucher)).length || 0;
 	const expiredVouchers = vouchersData?.vouchers?.filter((voucher) => isVoucherExpired(voucher.valid_to)).length || 0;
-	const totalDiscount = vouchersData?.vouchers?.reduce((sum, voucher) => sum + voucher.discount_amount, 0) || 0;
+	const totalDiscount =
+		vouchersData?.vouchers?.reduce((sum, voucher) => {
+			const amount = Number(voucher.discount_amount) || 0;
+			return sum + (isNaN(amount) ? 0 : amount);
+		}, 0) || 0;
 
 	if (isLoadingVouchers) {
 		return (
@@ -389,7 +391,7 @@ const VouchersPage = () => {
 						</CardTitle>
 					</CardHeader>
 					<CardContent>
-						<div className='text-2xl font-bold text-blue-600'>{totalDiscount.toLocaleString()}đ</div>
+						<div className='text-2xl font-bold text-blue-600'>{formatCurrency(totalDiscount)}</div>
 					</CardContent>
 				</Card>
 			</div>
@@ -577,7 +579,7 @@ const VouchersPage = () => {
 												{voucher.discount_amount > 0 && (
 													<div className='flex items-center gap-1 text-sm'>
 														<DollarSign className='h-3 w-3' />
-														{voucher.discount_amount.toLocaleString('vi-VN')}đ
+														{formatCurrency(voucher.discount_amount)}
 													</div>
 												)}
 											</div>
@@ -684,9 +686,7 @@ const VouchersPage = () => {
 								{selectedVoucher.discount_amount > 0 && (
 									<div>
 										<label className='text-sm font-medium text-gray-600'>Giảm giá (VNĐ)</label>
-										<p className='mt-1'>
-											{selectedVoucher.discount_amount.toLocaleString('vi-VN')}đ
-										</p>
+										<p className='mt-1'>{formatCurrency(selectedVoucher.discount_amount)}</p>
 									</div>
 								)}
 								<div>

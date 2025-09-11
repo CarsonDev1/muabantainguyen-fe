@@ -6,8 +6,10 @@ export interface Category {
   name: string;
   slug: string;
   parentId?: string;
+  parent_id?: string | null; // Thêm để match với API response
   children?: Category[];
   createdAt?: string;
+  created_at?: string; // Thêm để match với API response
   updatedAt?: string;
   tree?: Category[];
 }
@@ -36,8 +38,23 @@ export interface CategoriesResponse {
   tree?: Category[];
 }
 
+export interface ProductCategoriesResponse {
+  message: string;
+  categories: Category[];
+}
+
 // API Functions
 export const categoriesService = {
+  // GET /api/products/categories - Get product categories (API mới)
+  getProductCategories: async (): Promise<ProductCategoriesResponse> => {
+    try {
+      const response = await api.get('/products/categories');
+      return response.data;
+    } catch (error: any) {
+      throw new Error(error.response?.data?.message || 'Failed to fetch product categories');
+    }
+  },
+
   // GET /api/admin/categories/tree - Get category tree
   getCategoryTree: async (): Promise<CategoriesResponse> => {
     try {
@@ -101,6 +118,7 @@ export const categoriesService = {
 
 // Export individual functions for convenience
 export const {
+  getProductCategories, // Thêm function mới
   getCategoryTree,
   createCategory,
   updateCategory,
