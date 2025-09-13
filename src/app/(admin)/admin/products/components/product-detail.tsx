@@ -29,12 +29,11 @@ const ProductDetailsDialog: React.FC<ProductDetailsDialogProps> = ({ product, is
 
 	return (
 		<Dialog open={isOpen} onOpenChange={onClose}>
-			<DialogContent className='sm:max-w-[700px]'>
-				<DialogHeader>
+			<DialogContent className='sm:max-w-3xl max-h-screen'>
+				<DialogHeader className='!h-fit'>
 					<DialogTitle>Chi tiết sản phẩm</DialogTitle>
 					<DialogDescription>Thông tin chi tiết của {product.name}</DialogDescription>
 				</DialogHeader>
-
 				<div className='space-y-6'>
 					<div className='flex gap-6'>
 						<div className='w-48 h-48 bg-gray-100 rounded-lg overflow-hidden flex-shrink-0'>
@@ -53,7 +52,10 @@ const ProductDetailsDialog: React.FC<ProductDetailsDialogProps> = ({ product, is
 						<div className='flex-1 space-y-4'>
 							<div>
 								<h3 className='text-2xl font-bold'>{product.name}</h3>
-								<p className='text-gray-600 mt-1'>{product.description}</p>
+								<p
+									className='text-gray-600 mt-1 overflow-y-auto max-h-72'
+									dangerouslySetInnerHTML={{ __html: product.description }}
+								></p>
 							</div>
 							<div className='flex items-center gap-4'>
 								<div className='text-3xl font-bold text-blue-600'>{formatPrice(product.price)}</div>
@@ -66,16 +68,8 @@ const ProductDetailsDialog: React.FC<ProductDetailsDialogProps> = ({ product, is
 
 					<div className='grid grid-cols-2 gap-4'>
 						<div>
-							<label className='text-sm font-medium text-gray-600'>Slug</label>
-							<p className='mt-1'>{product.slug}</p>
-						</div>
-						<div>
 							<label className='text-sm font-medium text-gray-600'>Số lượng kho</label>
 							<p className='mt-1'>{product.stock} sản phẩm</p>
-						</div>
-						<div>
-							<label className='text-sm font-medium text-gray-600'>Danh mục ID</label>
-							<p className='mt-1'>{product.categoryId || product.categoryId}</p>
 						</div>
 						{product.created_at && (
 							<div>

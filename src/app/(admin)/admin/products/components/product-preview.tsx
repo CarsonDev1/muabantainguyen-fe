@@ -20,6 +20,7 @@ interface ProductFormSidebarProps {
 	watchedImageUrl: string;
 	uploadedImages: UploadedImage[];
 	formatPrice: (price: number) => string;
+	isUpdate?: boolean;
 }
 
 const ProductFormSidebar: React.FC<ProductFormSidebarProps> = ({
@@ -33,6 +34,7 @@ const ProductFormSidebar: React.FC<ProductFormSidebarProps> = ({
 	watchedImageUrl,
 	uploadedImages,
 	formatPrice,
+	isUpdate = false,
 }) => {
 	const getStockBadge = (stock: number) => {
 		if (stock === 0) {
@@ -56,12 +58,12 @@ const ProductFormSidebar: React.FC<ProductFormSidebarProps> = ({
 						{isCreating ? (
 							<>
 								<Loader2 className='h-4 w-4 mr-2 animate-spin' />
-								Đang tạo...
+								{isUpdate ? 'Đang cập nhật...' : 'Đang tạo...'}
 							</>
 						) : (
 							<>
 								<Save className='h-4 w-4 mr-2' />
-								Tạo sản phẩm
+								{isUpdate ? 'Cập nhật sản phẩm' : 'Tạo sản phẩm'}
 							</>
 						)}
 					</Button>

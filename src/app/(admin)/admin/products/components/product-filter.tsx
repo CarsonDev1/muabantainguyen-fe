@@ -12,7 +12,7 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover
 import { Separator } from '@/components/ui/separator';
 
 interface FilterForm {
-	categoryId: string;
+	category_id: string;
 	stockStatus: string;
 	minPrice: string;
 	maxPrice: string;

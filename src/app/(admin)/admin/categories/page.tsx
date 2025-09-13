@@ -161,12 +161,12 @@ const CategoriesPage = () => {
 		}
 	};
 
-	const toggleExpand = (categoryId: string) => {
+	const toggleExpand = (category_id: string) => {
 		const newExpanded = new Set(expandedCategories);
-		if (newExpanded.has(categoryId)) {
-			newExpanded.delete(categoryId);
+		if (newExpanded.has(category_id)) {
+			newExpanded.delete(category_id);
 		} else {
-			newExpanded.add(categoryId);
+			newExpanded.add(category_id);
 		}
 		setExpandedCategories(newExpanded);
 	};

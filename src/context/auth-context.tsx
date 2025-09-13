@@ -2,7 +2,6 @@
 
 import { CurrentUser, getCurrentUser } from '@/services/user-service';
 import React, { createContext, useContext, useEffect, useState, useRef, useCallback } from 'react';
-import Cookies from 'js-cookie';
 
 interface AuthContextType {
 	user: CurrentUser | null;
@@ -31,7 +30,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 			return;
 		}
 
-		const accessToken = Cookies.get('accessToken');
+		const accessToken = localStorage.getItem('accessToken');
 		if (!accessToken) {
 			setIsLoading(false);
 			return;
@@ -51,8 +50,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 			console.error('Failed to fetch current user:', error);
 			setUser(null);
 			// Clear cookies on error
-			Cookies.remove('accessToken');
-			Cookies.remove('refreshToken');
+			localStorage.removeItem('accessToken');
+			localStorage.removeItem('refreshToken');
 		} finally {
 			setIsLoading(false);
 			fetchingRef.current = false;
@@ -66,8 +65,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 	const logout = useCallback(() => {
 		setUser(null);
 		// Clear cookies
-		Cookies.remove('accessToken');
-		Cookies.remove('refreshToken');
+		localStorage.removeItem('accessToken');
+		localStorage.removeItem('refreshToken');
 		// Reset refs
 		fetchingRef.current = false;
 		initializedRef.current = false;
@@ -77,7 +76,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
 	const refreshUser = useCallback(async () => {
 		// Only refresh if we have a token and not already fetching
-		const accessToken = Cookies.get('accessToken');
+		const accessToken = localStorage.getItem('accessToken');
 		if (accessToken && !fetchingRef.current) {
 			await fetchCurrentUser();
 		}
@@ -100,8 +99,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 	// Check token expiration periodically
 	useEffect(() => {
 		const checkTokenExpiration = () => {
-			const accessToken = Cookies.get('accessToken');
-			const refreshToken = Cookies.get('refreshToken');
+			const accessToken = localStorage.getItem('accessToken');
+			const refreshToken = localStorage.getItem('refreshToken');
 
 			// If no tokens, logout
 			if (!accessToken && !refreshToken && user) {

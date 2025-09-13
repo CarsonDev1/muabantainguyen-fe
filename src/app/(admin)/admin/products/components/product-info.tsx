@@ -1,12 +1,11 @@
 'use client';
 
-import React, { useMemo } from 'react';
+import React, { useMemo, useEffect } from 'react';
 import { UseFormReturn } from 'react-hook-form';
 import { useQuery } from '@tanstack/react-query';
 import { Package, Hash, Loader2, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
 import { FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -20,7 +19,7 @@ interface ProductFormData {
 	price: number;
 	stock: number;
 	imageUrl: string;
-	categoryId: string;
+	category_id: string;
 }
 
 interface ProductFormBasicInfoProps {
@@ -190,11 +189,15 @@ const ProductFormBasicInfo: React.FC<ProductFormBasicInfoProps> = ({
 
 				<FormField
 					control={form.control}
-					name='categoryId'
+					name='category_id'
 					render={({ field }) => (
 						<FormItem>
 							<FormLabel>Danh mục *</FormLabel>
-							<Select onValueChange={field.onChange} defaultValue={field.value}>
+							<Select
+								onValueChange={field.onChange}
+								value={field.value ?? ''}
+								disabled={isLoadingCategories}
+							>
 								<FormControl>
 									<SelectTrigger>
 										<SelectValue
@@ -205,7 +208,7 @@ const ProductFormBasicInfo: React.FC<ProductFormBasicInfoProps> = ({
 													? 'Lỗi tải danh mục'
 													: 'Chọn danh mục sản phẩm'
 											}
-										/>
+										></SelectValue>
 									</SelectTrigger>
 								</FormControl>
 								<SelectContent>

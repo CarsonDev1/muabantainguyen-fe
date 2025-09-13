@@ -9,7 +9,7 @@ export interface Product {
   price: number;
   stock: number;
   image_url: string;
-  categoryId: string;
+  category_id: string;
   created_at?: string;
   updatedAt?: string;
 }
@@ -21,7 +21,7 @@ export interface CreateProductRequest {
   price: number;
   stock: number;
   image_url: string;
-  categoryId: string;
+  category_id: string;
 }
 
 export interface UpdateProductRequest {
@@ -31,7 +31,7 @@ export interface UpdateProductRequest {
   price?: number;
   stock?: number;
   image_url?: string;
-  categoryId?: string;
+  category_id?: string;
 }
 
 export interface ProductResponse {
@@ -98,7 +98,7 @@ export const productsService = {
     page?: number;
     limit?: number;
     search?: string;
-    categoryId?: string;
+    category_id?: string;
     minPrice?: number;
     maxPrice?: number;
     inStock?: boolean;
@@ -112,7 +112,7 @@ export const productsService = {
         ...(params?.page && { page: params.page }),
         ...(params?.limit && { pageSize: params.limit }),
         ...(params?.search && { q: params.search }),
-        ...(params?.categoryId && { categoryId: params.categoryId }),
+        ...(params?.category_id && { category_id: params.category_id }),
         ...(params?.minPrice && { minPrice: params.minPrice }),
         ...(params?.maxPrice && { maxPrice: params.maxPrice }),
         ...(params?.inStock !== undefined && { inStock: params.inStock }),
@@ -142,7 +142,7 @@ export const productsService = {
     page?: number;
     limit?: number;
     search?: string;
-    categoryId?: string;
+    category_id?: string;
     sortBy?: string;
     sortOrder?: 'asc' | 'desc';
   }): Promise<ProductsResponse> => {
@@ -174,9 +174,9 @@ export const productsService = {
     }
   },
 
-  // GET /api/products/category/{categoryId} - Get products by category
+  // GET /api/products/category/{category_id} - Get products by category
   getProductsByCategory: async (
-    categoryId: string,
+    category_id: string,
     params?: {
       page?: number;
       limit?: number;
@@ -185,7 +185,7 @@ export const productsService = {
     }
   ): Promise<ProductsResponse> => {
     try {
-      const response = await api.get(`/products/category/${categoryId}`, { params });
+      const response = await api.get(`/products/category/${category_id}`, { params });
       return response.data;
     } catch (error: any) {
       throw new Error(error.response?.data?.message || 'Failed to fetch products by category');

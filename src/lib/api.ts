@@ -1,5 +1,4 @@
 import axios from 'axios';
-import Cookies from 'js-cookie';
 
 // Sử dụng domain mới với HTTPS
 export const API_BASE_URL = 'http://localhost:4000/api';
@@ -36,8 +35,8 @@ const processQueue = (error: any, token: string | null = null) => {
 api.interceptors.request.use(
   (config) => {
     // Get token from cookies
-    const accessToken = Cookies.get('accessToken');
-    const refreshToken = Cookies.get('refreshToken');
+    const accessToken = localStorage.getItem('accessToken');
+    const refreshToken = localStorage.getItem('refreshToken');
 
     // Add token to headers if exists
     if (accessToken) {
@@ -86,16 +85,17 @@ api.interceptors.response.use(
       originalRequest._retry = true;
       isRefreshing = true;
 
-      const refreshToken = Cookies.get('refreshToken');
+      const refreshToken = localStorage.getItem('refreshToken');
 
       if (!refreshToken) {
         // No refresh token available, redirect to login
         console.log('No refresh token available. Redirecting to login...');
-        Cookies.remove('accessToken');
-        Cookies.remove('refreshToken');
+        localStorage.removeItem('accessToken');
+        localStorage.removeItem('refreshToken');
 
         // Dispatch custom event for auth context to handle
         window.dispatchEvent(new CustomEvent('auth:logout'));
+        window.location.href = '/sign-in';
 
         processQueue(error, null);
         isRefreshing = false;
@@ -113,16 +113,10 @@ api.interceptors.response.use(
 
         const { accessToken: newAccessToken, refreshToken: newRefreshToken } = response.data;
 
-        // Update cookies with new tokens
-        const COOKIE_OPTIONS = {
-          secure: process.env.NODE_ENV === 'production',
-          sameSite: 'strict' as const,
-          expires: 30
-        };
 
-        Cookies.set('accessToken', newAccessToken, COOKIE_OPTIONS);
+        localStorage.setItem('accessToken', newAccessToken);
         if (newRefreshToken) {
-          Cookies.set('refreshToken', newRefreshToken, COOKIE_OPTIONS);
+          localStorage.setItem('refreshToken', newRefreshToken);
         }
 
         // Update the original request with new token
@@ -138,11 +132,11 @@ api.interceptors.response.use(
       } catch (refreshError) {
         // Refresh failed, clear tokens and redirect to login
         console.log('Token refresh failed. Redirecting to login...');
-        Cookies.remove('accessToken');
-        Cookies.remove('refreshToken');
+        localStorage.removeItem('accessToken');
 
         // Dispatch custom event for auth context to handle
         window.dispatchEvent(new CustomEvent('auth:logout'));
+        window.location.href = '/sign-in';
 
         processQueue(refreshError, null);
         isRefreshing = false;

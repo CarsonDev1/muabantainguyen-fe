@@ -1,16 +1,17 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { useRouter } from 'next/navigation';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useRouter, useParams } from 'next/navigation';
 import { toast } from 'react-toastify';
 import * as z from 'zod';
-import { ArrowLeft } from 'lucide-react';
+import { ArrowLeft, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Form } from '@/components/ui/form';
-import { productsService, type CreateProductRequest } from '@/services/product-service';
+import { Card, CardContent } from '@/components/ui/card';
+import { productsService, type UpdateProductRequest } from '@/services/product-service';
 import { type UploadedImage } from '@/services/upload-service';
 import ProductFormBasicInfo from '@/app/(admin)/admin/products/components/product-info';
 import ProductFormPricing from '@/app/(admin)/admin/products/components/product-pricing';
@@ -39,9 +40,11 @@ const productSchema: any = z.object({
 
 type ProductFormData = z.infer<typeof productSchema>;
 
-const CreateProductPage = () => {
+const UpdateProductPage = () => {
 	const router = useRouter();
+	const params = useParams();
 	const queryClient = useQueryClient();
+	const productId = params.id as string;
 
 	// Form states
 	const [uploadedImages, setUploadedImages] = useState<UploadedImage[]>([]);
@@ -49,6 +52,7 @@ const CreateProductPage = () => {
 	const [uploadProgress, setUploadProgress] = useState(0);
 	const [manualImageUrl, setManualImageUrl] = useState('');
 	const [isGeneratingSlug, setIsGeneratingSlug] = useState(false);
+	const [isFormInitialized, setIsFormInitialized] = useState(false);
 
 	const form: any = useForm<ProductFormData>({
 		resolver: zodResolver(productSchema),
@@ -63,16 +67,52 @@ const CreateProductPage = () => {
 		},
 	});
 
+	// Fetch existing product data
+	const {
+		data: product,
+		isLoading: isLoadingProduct,
+		isError: isProductError,
+		error: productError,
+	} = useQuery<any>({
+		queryKey: ['product', productId],
+		queryFn: () => productsService.getProductById(productId),
+		enabled: !!productId,
+	});
+
+	const productUpdate = product?.product;
+
+	// Initialize form with existing product data
+	useEffect(() => {
+		if (product && !isLoadingProduct) {
+			form.reset({
+				name: productUpdate.name || '',
+				slug: productUpdate.slug || '',
+				description: productUpdate.description || '',
+				price: productUpdate.price || 0,
+				stock: productUpdate.stock || 0,
+				imageUrl: productUpdate.image_url || '',
+				category_id: productUpdate.category_id || '',
+			});
+
+			if (productUpdate.image_url) {
+				setManualImageUrl(productUpdate.image_url);
+			}
+
+			setIsFormInitialized(true);
+		}
+	}, [product, isLoadingProduct, form, isFormInitialized]);
+
 	// Mutations
-	const createProductMutation = useMutation({
-		mutationFn: (data: CreateProductRequest) => productsService.createProduct(data),
+	const updateProductMutation = useMutation({
+		mutationFn: (data: UpdateProductRequest) => productsService.updateProduct(productId, data),
 		onSuccess: () => {
 			queryClient.invalidateQueries({ queryKey: ['products'] });
-			toast.success('Tạo sản phẩm thành công!');
+			queryClient.invalidateQueries({ queryKey: ['product', productId] });
+			toast.success('Cập nhật sản phẩm thành công!');
 			router.push('/admin/products');
 		},
 		onError: (error: Error) => {
-			toast.error(error.message || 'Có lỗi xảy ra khi tạo sản phẩm');
+			toast.error(error.message || 'Có lỗi xảy ra khi cập nhật sản phẩm');
 		},
 	});
 
@@ -103,7 +143,7 @@ const CreateProductPage = () => {
 	};
 
 	const onSubmit = (data: ProductFormData) => {
-		createProductMutation.mutate(data);
+		updateProductMutation.mutate(data);
 	};
 
 	// Watch form values
@@ -111,6 +151,93 @@ const CreateProductPage = () => {
 	const watchedStock = form.watch('stock');
 	const watchedName = form.watch('name');
 	const watchedImageUrl = form.watch('imageUrl');
+
+	// Loading state
+	if (isLoadingProduct) {
+		return (
+			<div className='space-y-6'>
+				<div className='flex items-center gap-4'>
+					<Button variant='outline' size='sm' onClick={() => router.back()} className='h-9 w-9 p-0'>
+						<ArrowLeft className='h-4 w-4' />
+					</Button>
+					<div>
+						<h1 className='text-3xl font-bold bg-gradient-to-r from-gray-900 to-gray-700 bg-clip-text text-transparent'>
+							Cập nhật sản phẩm
+						</h1>
+						<p className='text-gray-600 mt-2'>Chỉnh sửa thông tin sản phẩm</p>
+					</div>
+				</div>
+				<div className='flex items-center justify-center p-8'>
+					<Loader2 className='h-8 w-8 animate-spin' />
+					<span className='ml-2'>Đang tải thông tin sản phẩm...</span>
+				</div>
+			</div>
+		);
+	}
+
+	// Error state
+	if (isProductError) {
+		return (
+			<div className='space-y-6'>
+				<div className='flex items-center gap-4'>
+					<Button variant='outline' size='sm' onClick={() => router.back()} className='h-9 w-9 p-0'>
+						<ArrowLeft className='h-4 w-4' />
+					</Button>
+					<div>
+						<h1 className='text-3xl font-bold bg-gradient-to-r from-gray-900 to-gray-700 bg-clip-text text-transparent'>
+							Cập nhật sản phẩm
+						</h1>
+						<p className='text-gray-600 mt-2'>Chỉnh sửa thông tin sản phẩm</p>
+					</div>
+				</div>
+				<Card>
+					<CardContent className='p-6 text-center'>
+						<p className='text-destructive'>
+							Có lỗi xảy ra: {productError?.message || 'Không thể tải thông tin sản phẩm'}
+						</p>
+						<div className='flex gap-2 justify-center mt-4'>
+							<Button
+								variant='outline'
+								onClick={() => queryClient.invalidateQueries({ queryKey: ['product', productId] })}
+							>
+								Thử lại
+							</Button>
+							<Button variant='outline' onClick={() => router.push('/admin/products')}>
+								Quay lại danh sách
+							</Button>
+						</div>
+					</CardContent>
+				</Card>
+			</div>
+		);
+	}
+
+	// Product not found
+	if (!product) {
+		return (
+			<div className='space-y-6'>
+				<div className='flex items-center gap-4'>
+					<Button variant='outline' size='sm' onClick={() => router.back()} className='h-9 w-9 p-0'>
+						<ArrowLeft className='h-4 w-4' />
+					</Button>
+					<div>
+						<h1 className='text-3xl font-bold bg-gradient-to-r from-gray-900 to-gray-700 bg-clip-text text-transparent'>
+							Cập nhật sản phẩm
+						</h1>
+						<p className='text-gray-600 mt-2'>Chỉnh sửa thông tin sản phẩm</p>
+					</div>
+				</div>
+				<Card>
+					<CardContent className='p-6 text-center'>
+						<p className='text-muted-foreground'>Không tìm thấy sản phẩm với ID này</p>
+						<Button variant='outline' className='mt-4' onClick={() => router.push('/admin/products')}>
+							Quay lại danh sách
+						</Button>
+					</CardContent>
+				</Card>
+			</div>
+		);
+	}
 
 	return (
 		<div className='space-y-6'>
@@ -121,9 +248,9 @@ const CreateProductPage = () => {
 				</Button>
 				<div>
 					<h1 className='text-3xl font-bold bg-gradient-to-r from-gray-900 to-gray-700 bg-clip-text text-transparent'>
-						Thêm sản phẩm mới
+						Cập nhật sản phẩm
 					</h1>
-					<p className='text-gray-600 mt-2'>Tạo sản phẩm mới cho cửa hàng của bạn</p>
+					<p className='text-gray-600 mt-2'>Chỉnh sửa thông tin cho "{productUpdate.name}"</p>
 				</div>
 			</div>
 
@@ -160,9 +287,9 @@ const CreateProductPage = () => {
 
 						{/* Sidebar */}
 						<ProductFormSidebar
-							isCreating={createProductMutation.isPending}
-							isLoadingCategories={false} // This will be handled in BasicInfo component
-							categoriesError={null} // This will be handled in BasicInfo component
+							isCreating={updateProductMutation.isPending}
+							isLoadingCategories={false}
+							categoriesError={null}
 							onCancel={handleCancel}
 							watchedName={watchedName}
 							watchedPrice={watchedPrice}
@@ -170,6 +297,7 @@ const CreateProductPage = () => {
 							watchedImageUrl={watchedImageUrl}
 							uploadedImages={uploadedImages}
 							formatPrice={formatCurrency}
+							isUpdate={true}
 						/>
 					</div>
 				</form>
@@ -178,4 +306,4 @@ const CreateProductPage = () => {
 	);
 };
 
-export default CreateProductPage;
+export default UpdateProductPage;

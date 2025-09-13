@@ -1,5 +1,4 @@
 import api from '../lib/api';
-import Cookies from 'js-cookie';
 
 export interface RegisterData {
   name: string;
@@ -64,16 +63,34 @@ export interface ResetPasswordResponse {
   message: string;
 }
 
-// Shared cookie options
-const COOKIE_OPTIONS = {
-  secure: process.env.NODE_ENV === 'production',
-  sameSite: 'strict' as const,
-  expires: 30 // 30 days
+// LocalStorage keys
+const ACCESS_TOKEN_KEY = 'accessToken';
+const REFRESH_TOKEN_KEY = 'refreshToken';
+
+// Helper functions for localStorage operations
+const setItem = (key: string, value: string): void => {
+  try {
+    localStorage.setItem(key, value);
+  } catch (error) {
+    console.error(`Failed to set ${key} in localStorage:`, error);
+  }
 };
 
-const ACCESS_TOKEN_OPTIONS = {
-  ...COOKIE_OPTIONS,
-  expires: 1 // 1 day for access token
+const getItem = (key: string): string | null => {
+  try {
+    return localStorage.getItem(key);
+  } catch (error) {
+    console.error(`Failed to get ${key} from localStorage:`, error);
+    return null;
+  }
+};
+
+const removeItem = (key: string): void => {
+  try {
+    localStorage.removeItem(key);
+  } catch (error) {
+    console.error(`Failed to remove ${key} from localStorage:`, error);
+  }
 };
 
 export const register = async (data: RegisterData): Promise<RegisterResponse> => {
@@ -90,12 +107,12 @@ export const login = async (data: LoginData): Promise<LoginResponse> => {
     const response = await api.post('/auth/login', data);
     const { accessToken, refreshToken } = response.data;
 
-    // Set tokens in cookies if they exist in response
+    // Set tokens in localStorage if they exist in response
     if (accessToken) {
-      Cookies.set('accessToken', accessToken, ACCESS_TOKEN_OPTIONS);
+      setItem(ACCESS_TOKEN_KEY, accessToken);
     }
     if (refreshToken) {
-      Cookies.set('refreshToken', refreshToken, COOKIE_OPTIONS);
+      setItem(REFRESH_TOKEN_KEY, refreshToken);
     }
 
     return response.data;
@@ -106,7 +123,7 @@ export const login = async (data: LoginData): Promise<LoginResponse> => {
 
 export const refreshToken = async (): Promise<RefreshTokenResponse> => {
   try {
-    const currentRefreshToken = Cookies.get('refreshToken');
+    const currentRefreshToken = getItem(REFRESH_TOKEN_KEY);
 
     if (!currentRefreshToken) {
       throw new Error('No refresh token available');
@@ -120,19 +137,19 @@ export const refreshToken = async (): Promise<RefreshTokenResponse> => {
 
     const { accessToken, refreshToken: newRefreshToken } = response.data;
 
-    // Update cookies with new tokens
+    // Update localStorage with new tokens
     if (accessToken) {
-      Cookies.set('accessToken', accessToken, ACCESS_TOKEN_OPTIONS);
+      setItem(ACCESS_TOKEN_KEY, accessToken);
     }
     if (newRefreshToken) {
-      Cookies.set('refreshToken', newRefreshToken, COOKIE_OPTIONS);
+      setItem(REFRESH_TOKEN_KEY, newRefreshToken);
     }
 
     return response.data;
   } catch (error: any) {
-    // Clear cookies if refresh fails
-    Cookies.remove('accessToken');
-    Cookies.remove('refreshToken');
+    // Clear localStorage if refresh fails
+    removeItem(ACCESS_TOKEN_KEY);
+    removeItem(REFRESH_TOKEN_KEY);
     throw new Error(error.response?.data?.message || 'Refresh token failed');
   }
 };
@@ -146,8 +163,8 @@ export const logout = async (): Promise<void> => {
     console.error('Server logout failed:', error);
   } finally {
     // Always clear local tokens
-    Cookies.remove('accessToken');
-    Cookies.remove('refreshToken');
+    removeItem(ACCESS_TOKEN_KEY);
+    removeItem(REFRESH_TOKEN_KEY);
   }
 };
 
@@ -171,17 +188,23 @@ export const resetPassword = async (data: ResetPasswordData): Promise<ResetPassw
 
 // Check if user is authenticated (has valid tokens)
 export const isAuthenticated = (): boolean => {
-  const accessToken = Cookies.get('accessToken');
-  const refreshToken = Cookies.get('refreshToken');
+  const accessToken = getItem(ACCESS_TOKEN_KEY);
+  const refreshToken = getItem(REFRESH_TOKEN_KEY);
   return !!(accessToken || refreshToken);
 };
 
 // Get current access token
-export const getAccessToken = (): string | undefined => {
-  return Cookies.get('accessToken');
+export const getAccessToken = (): string | null => {
+  return getItem(ACCESS_TOKEN_KEY);
 };
 
 // Get current refresh token  
-export const getRefreshToken = (): string | undefined => {
-  return Cookies.get('refreshToken');
+export const getRefreshToken = (): string | null => {
+  return getItem(REFRESH_TOKEN_KEY);
+};
+
+// Clear all tokens from localStorage
+export const clearTokens = (): void => {
+  removeItem(ACCESS_TOKEN_KEY);
+  removeItem(REFRESH_TOKEN_KEY);
 };

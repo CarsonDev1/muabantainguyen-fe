@@ -14,7 +14,7 @@ interface ProductFormData {
 	price: number;
 	stock: number;
 	imageUrl: string;
-	categoryId: string;
+	category_id: string;
 }
 
 interface ProductFormPricingProps {
@@ -39,7 +39,13 @@ const ProductFormPricing: React.FC<ProductFormPricingProps> = ({ form }) => {
 							<FormItem>
 								<FormLabel>Giá bán *</FormLabel>
 								<FormControl>
-									<Input type='number' placeholder='0' min='0' step='1000' {...field} />
+									<Input
+										type='number'
+										placeholder='0'
+										min='0'
+										{...field}
+										onChange={(e) => field.onChange(parseFloat(e.target.value) || 0)}
+									/>
 								</FormControl>
 								<FormDescription>Giá bán tính bằng VND</FormDescription>
 								<FormMessage />
@@ -54,7 +60,13 @@ const ProductFormPricing: React.FC<ProductFormPricingProps> = ({ form }) => {
 							<FormItem>
 								<FormLabel>Số lượng kho *</FormLabel>
 								<FormControl>
-									<Input type='number' placeholder='0' min='0' {...field} />
+									<Input
+										type='number'
+										placeholder='0'
+										min='0'
+										{...field}
+										onChange={(e) => field.onChange(parseInt(e.target.value) || 0)}
+									/>
 								</FormControl>
 								<FormDescription>Số lượng sản phẩm trong kho</FormDescription>
 								<FormMessage />

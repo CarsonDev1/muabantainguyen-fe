@@ -18,16 +18,15 @@ interface GetProductsParams {
 	page?: number;
 	limit?: number;
 	search?: string;
-	categoryId?: string;
+	category_id?: string;
 	minPrice?: number;
 	maxPrice?: number;
-	inStock?: boolean;
 	sortBy?: string;
 	sortOrder?: 'asc' | 'desc';
 }
 
 interface FilterForm {
-	categoryId: string;
+	category_id: string;
 	stockStatus: string;
 	minPrice: string;
 	maxPrice: string;
@@ -36,7 +35,7 @@ interface FilterForm {
 }
 
 const DEFAULT_FILTERS: FilterForm = {
-	categoryId: 'all',
+	category_id: 'all',
 	stockStatus: 'all',
 	minPrice: '',
 	maxPrice: '',
@@ -70,27 +69,12 @@ const ProductPage = () => {
 		return () => clearTimeout(timer);
 	}, [searchTerm]);
 
-	// Convert stock status filter to API parameters
-	const convertStockFilter = (stockStatus: string) => {
-		switch (stockStatus) {
-			case 'in_stock':
-				return { inStock: true };
-			case 'out_of_stock':
-				return { inStock: false };
-			case 'low_stock':
-				return {};
-			default:
-				return {};
-		}
-	};
-
-	// Build query parameters
+	// Build query parameters (remove stock filtering from API call since we'll filter on frontend)
 	const queryParams: GetProductsParams = {
 		page: currentPage,
 		limit: pageSize,
 		...(debouncedSearchTerm && { search: debouncedSearchTerm }),
-		...(appliedFilters.categoryId !== 'all' && { categoryId: appliedFilters.categoryId }),
-		...convertStockFilter(appliedFilters.stockStatus),
+		...(appliedFilters.category_id !== 'all' && { category_id: appliedFilters.category_id }),
 		...(appliedFilters.minPrice && { minPrice: parseInt(appliedFilters.minPrice) }),
 		...(appliedFilters.maxPrice && { maxPrice: parseInt(appliedFilters.maxPrice) }),
 		sortBy: appliedFilters.sortBy,
@@ -170,22 +154,44 @@ const ProductPage = () => {
 	};
 
 	const hasActiveFilters =
-		appliedFilters.categoryId !== 'all' ||
+		appliedFilters.category_id !== 'all' ||
 		appliedFilters.stockStatus !== 'all' ||
 		!!appliedFilters.minPrice ||
 		!!appliedFilters.maxPrice ||
 		!!debouncedSearchTerm;
 
-	// Filter products for low stock on frontend since API doesn't support it
+	// Filter products based on stock status
+	const filterProductsByStock = (products: Product[], stockStatus: string): Product[] => {
+		switch (stockStatus) {
+			case 'in_stock':
+				return products.filter((product) => product.stock > 0);
+			case 'out_of_stock':
+				return products.filter((product) => product.stock === 0);
+			case 'low_stock':
+				// Define low stock as stock > 0 but <= 10
+				return products.filter((product) => product.stock > 0 && product.stock <= 10);
+			default:
+				return products;
+		}
+	};
+
+	// Apply stock filtering to products
 	let products = productsData?.items || [];
-	if (appliedFilters.stockStatus === 'low_stock') {
-		products = products.filter((product) => product.stock > 0 && product.stock < 10);
+	if (appliedFilters.stockStatus !== 'all') {
+		products = filterProductsByStock(products, appliedFilters.stockStatus);
 	}
 
+	// Calculate pagination based on filtered results
+	const filteredTotal = products.length;
+	const startIndex = (currentPage - 1) * pageSize;
+	const endIndex = startIndex + pageSize;
+	const paginatedProducts = products.slice(startIndex, endIndex);
+	const totalPages = Math.ceil(filteredTotal / pageSize);
+
 	const pagination = {
-		total: productsData?.total || 0,
-		totalPages: productsData?.totalPages || 1,
-		page: productsData?.page || 1,
+		total: filteredTotal,
+		totalPages: totalPages,
+		page: currentPage,
 	};
 
 	// Loading state
@@ -251,7 +257,11 @@ const ProductPage = () => {
 			</div>
 
 			{/* Stats Cards */}
-			<ProductStats products={products} totalProducts={pagination.total} formatPrice={formatPrice} />
+			<ProductStats
+				products={productsData?.items || []}
+				totalProducts={productsData?.total || 0}
+				formatPrice={formatPrice}
+			/>
 
 			{/* Search and Filters */}
 			<ProductFilters
@@ -274,7 +284,7 @@ const ProductPage = () => {
 
 			{/* Products Grid */}
 			<ProductGrid
-				products={products}
+				products={paginatedProducts}
 				hasActiveFilters={hasActiveFilters}
 				currentPage={currentPage}
 				setCurrentPage={setCurrentPage}

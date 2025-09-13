@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useRef } from 'react';
+import React, { useRef, useEffect } from 'react';
 import { UseFormReturn } from 'react-hook-form';
 import { Upload, Loader2, Plus, Trash2, ImageIcon } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -20,7 +20,7 @@ interface ProductFormData {
 	price: number;
 	stock: number;
 	imageUrl: string;
-	categoryId: string;
+	category_id: string;
 }
 
 interface ProductFormImagesProps {
@@ -137,6 +137,14 @@ const ProductFormImages: React.FC<ProductFormImagesProps> = ({
 			setManualImageUrl('');
 		}
 	};
+
+	// Initialize manual image URL when form loads with existing data
+	useEffect(() => {
+		const currentImageUrl = form.getValues('imageUrl');
+		if (currentImageUrl && !manualImageUrl) {
+			setManualImageUrl(currentImageUrl);
+		}
+	}, [form, manualImageUrl, setManualImageUrl]);
 
 	return (
 		<Card>
