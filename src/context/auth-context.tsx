@@ -10,6 +10,7 @@ interface AuthContextType {
 	login: (user: CurrentUser) => void;
 	logout: () => void;
 	refreshUser: () => Promise<void>;
+	updateUserData: (userData: Partial<CurrentUser>) => void;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -82,6 +83,18 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 		}
 	}, [fetchCurrentUser]);
 
+	// New method to update user data locally
+	const updateUserData = useCallback((userData: Partial<CurrentUser>) => {
+		setUser((prevUser) => {
+			if (!prevUser) return null;
+
+			return {
+				...prevUser,
+				...userData,
+			};
+		});
+	}, []);
+
 	// Listen for auth:logout event from API interceptor
 	useEffect(() => {
 		const handleAutoLogout = () => {
@@ -133,6 +146,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 		login,
 		logout,
 		refreshUser,
+		updateUserData,
 	};
 
 	return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

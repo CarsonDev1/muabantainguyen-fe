@@ -41,11 +41,11 @@ const Header = () => {
 						<DropdownMenuContent align='end' className='space-y-2'>
 							<DropdownMenuItem>
 								<User />
-								<Link href='/profile'>Tài khoản</Link>
+								<Link href='/admin/profile'>Tài khoản</Link>
 							</DropdownMenuItem>
 							<DropdownMenuItem>
 								<History />
-								<Link href='/history'>Lịch sử giao dịch</Link>
+								<Link href='/admin/history'>Lịch sử giao dịch</Link>
 							</DropdownMenuItem>
 							<DropdownMenuSeparator />
 							<DropdownMenuItem onClick={() => logout()}>

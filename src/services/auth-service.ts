@@ -63,6 +63,16 @@ export interface ResetPasswordResponse {
   message: string;
 }
 
+export interface ChangePasswordData {
+  currentPassword: string;
+  newPassword: string;
+}
+
+export interface ChangePasswordResponse {
+  success: boolean;
+  message: string;
+}
+
 // LocalStorage keys
 const ACCESS_TOKEN_KEY = 'accessToken';
 const REFRESH_TOKEN_KEY = 'refreshToken';
@@ -183,6 +193,15 @@ export const resetPassword = async (data: ResetPasswordData): Promise<ResetPassw
     return response.data;
   } catch (error: any) {
     throw new Error(error.response?.data?.message || 'Password reset failed');
+  }
+};
+
+export const changePassword = async (data: ChangePasswordData): Promise<ChangePasswordResponse> => {
+  try {
+    const response = await api.post('/auth/change-password', data);
+    return response.data;
+  } catch (error: any) {
+    throw new Error(error.response?.data?.message || 'Change password failed');
   }
 };
 

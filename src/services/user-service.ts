@@ -64,6 +64,19 @@ export interface GetUserOrdersResponse {
   data: Order[];
 }
 
+export interface UpdateProfileRequest {
+  name?: string;
+  phone?: string;
+  avatarUrl?: string;
+  email?: string;
+}
+
+export interface UpdateProfileResponse {
+  success: boolean;
+  message?: string;
+  user?: CurrentUser;
+}
+
 export interface GetUsersParams {
   page?: number;
   pageSize?: number;
@@ -81,6 +94,15 @@ export const getCurrentUser = async (): Promise<GetMeResponse> => {
     return response.data;
   } catch (error: any) {
     throw new Error(error.response?.data?.message || 'Failed to fetch current user');
+  }
+};
+
+export const updateProfile = async (data: UpdateProfileRequest): Promise<UpdateProfileResponse> => {
+  try {
+    const response = await api.put('/auth/me', data);
+    return response.data;
+  } catch (error: any) {
+    throw new Error(error.response?.data?.message || 'Failed to update profile');
   }
 };
 
@@ -174,6 +196,7 @@ export const searchUsers = async (params: GetUsersParams): Promise<GetUsersRespo
 // User service object for easier imports
 export const userService = {
   getCurrentUser,
+  updateProfile,
   getUsers,
   blockUser,
   getUserOrders,
@@ -185,6 +208,7 @@ export const userService = {
 // Export individual functions for convenience
 export {
   getCurrentUser as getMe,
+  updateProfile as updateMyProfile,
   getUsers as listUsers,
   blockUser as updateUserBlockStatus,
   getUserOrders as fetchUserOrders,
