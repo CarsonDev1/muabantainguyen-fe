@@ -11,9 +11,12 @@ import {
 	SidebarMenuItem,
 	SidebarHeader,
 } from '@/components/ui/sidebar';
-import { Home, Inbox, Calendar, Search, Settings, Users, Percent, Tag } from 'lucide-react';
+import { Home, Inbox, Calendar, Search, Settings, Users, Percent, Tag, Wallet } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import { useQuery } from '@tanstack/react-query';
+import { getWallet } from '@/services/wallet-service';
+import { formatCurrency } from '@/utils/format-currency';
 
 const items = [
 	{ title: 'Trang chủ', url: '/admin', icon: Home },
@@ -23,11 +26,18 @@ const items = [
 	{ title: 'Đơn hàng', url: '/admin/orders', icon: Calendar },
 	{ title: 'Sản phẩm', url: '/admin/products', icon: Search },
 	{ title: 'Khuyến mãi', url: '/admin/promotions', icon: Percent },
+	{ title: 'Ví', url: '/admin/wallet', icon: Wallet },
 	{ title: 'Cài đặt', url: '/admin/settings', icon: Settings },
 ];
 
 export function AppSidebar() {
 	const pathname = usePathname();
+
+	const { data: walletData } = useQuery({
+		queryKey: ['wallet'],
+		queryFn: getWallet,
+		refetchInterval: 30000,
+	});
 
 	const isActive = (url: string) => {
 		if (url === '/admin') {
@@ -35,6 +45,8 @@ export function AppSidebar() {
 		}
 		return pathname.startsWith(url);
 	};
+
+	const balance = walletData?.wallet?.balance ?? 0;
 
 	return (
 		<Sidebar collapsible='icon' variant='inset' className='border-b border'>
@@ -49,8 +61,8 @@ export function AppSidebar() {
 			<SidebarContent>
 				<SidebarGroup>
 					<SidebarGroupContent>
-						<SidebarGroupLabel className='flex items-center gap-2 justify-center text-black text-base font-semibold mb-4 bg-yellow-300 rounded-md p-2'>
-							<span>Số dư: 0đ</span>-<span>Giảm giá: 0%</span>
+						<SidebarGroupLabel className='flex items-center gap-2 justify-center text-black text-sm font-semibold mb-4 bg-yellow-300 rounded-md p-2'>
+							<span>Số dư: {formatCurrency(balance)}</span>
 						</SidebarGroupLabel>
 						<SidebarMenu>
 							{items.map((item) => (

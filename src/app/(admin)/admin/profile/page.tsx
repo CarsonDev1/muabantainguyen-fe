@@ -14,6 +14,9 @@ import { FormControl, FormLabel, FormItem, FormMessage, FormField, Form } from '
 import { Input } from '@/components/ui/input';
 import { toast } from 'react-toastify';
 import { Badge } from '@/components/ui/badge';
+import { useQuery } from '@tanstack/react-query';
+import { getWallet } from '@/services/wallet-service';
+import { formatCurrency } from '@/utils/format-currency';
 
 const profileSchema = z.object({
 	name: z.string().min(1, 'Tên người dùng là bắt buộc').min(3, 'Tên phải có ít nhất 3 ký tự'),
@@ -31,6 +34,12 @@ const ProfileAdmin = () => {
 	const [isSubmitting, setIsSubmitting] = useState(false);
 	const [lastSubmitTime, setLastSubmitTime] = useState(0);
 	const [originalFormData, setOriginalFormData] = useState<UserFormData | null>(null);
+
+	const { data: walletData } = useQuery({
+		queryKey: ['wallet'],
+		queryFn: getWallet,
+		refetchInterval: 30000,
+	});
 
 	const SUBMIT_COOLDOWN = 2000;
 	const form = useForm<UserFormData>({
@@ -122,6 +131,9 @@ const ProfileAdmin = () => {
 	const getButtonText = () =>
 		isSubmitting ? 'Đang cập nhật...' : !hasFormChanged ? 'Không có thay đổi' : 'Cập nhật thông tin';
 
+	const wallet = walletData?.wallet;
+	const stats = walletData?.stats;
+
 	return (
 		<div className='flex flex-col gap-8 w-full'>
 			{/* Header với avatar + info */}
@@ -167,19 +179,19 @@ const ProfileAdmin = () => {
 			{/* Stats */}
 			<div className='grid grid-cols-1 md:grid-cols-3 gap-4'>
 				<Card className='p-5 text-center shadow-md rounded-xl'>
-					<Wallet className='mx-auto text-indigo-600' />
+					<Wallet className='mx-auto text-indigo-600 mb-3' size={32} />
 					<p className='text-sm text-gray-500 mt-2'>Tổng tiền nạp</p>
-					<p className='text-lg font-bold text-indigo-700'>0 VNĐ</p>
+					<p className='text-lg font-bold text-indigo-700'>{formatCurrency(wallet?.total_deposited ?? 0)}</p>
 				</Card>
 				<Card className='p-5 text-center shadow-md rounded-xl'>
-					<CreditCard className='mx-auto text-red-500' />
+					<CreditCard className='mx-auto text-red-500 mb-3' size={32} />
 					<p className='text-sm text-gray-500 mt-2'>Tổng tiền sử dụng</p>
-					<p className='text-lg font-bold text-red-600'>0 VNĐ</p>
+					<p className='text-lg font-bold text-red-600'>{formatCurrency(wallet?.total_spent ?? 0)}</p>
 				</Card>
 				<Card className='p-5 text-center shadow-md rounded-xl'>
-					<PiggyBank className='mx-auto text-green-500' />
-					<p className='text-sm text-gray-500 mt-2'>Tổng tiền còn lại</p>
-					<p className='text-lg font-bold text-green-600'>0 VNĐ</p>
+					<PiggyBank className='mx-auto text-green-500 mb-3' size={32} />
+					<p className='text-sm text-gray-500 mt-2'>Số dư hiện tại</p>
+					<p className='text-xl font-bold text-green-600'>{formatCurrency(wallet?.balance ?? 0)}</p>
 				</Card>
 			</div>
 
