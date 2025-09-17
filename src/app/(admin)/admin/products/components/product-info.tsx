@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useMemo, useEffect } from 'react';
+import React, { useMemo, useEffect, useState } from 'react';
 import { UseFormReturn } from 'react-hook-form';
 import { useQuery } from '@tanstack/react-query';
 import { Package, Hash, Loader2, X } from 'lucide-react';
@@ -10,7 +10,18 @@ import { FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessa
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { categoriesService } from '@/services/categories-service';
-import ReactQuill from 'react-quill';
+import dynamic from 'next/dynamic';
+
+// Dynamically import ReactQuill to avoid SSR issues
+const ReactQuill = dynamic(() => import('react-quill'), {
+	ssr: false,
+	loading: () => (
+		<div className='border rounded-md p-3 min-h-[140px] flex items-center justify-center text-gray-500'>
+			<Loader2 className='h-6 w-6 animate-spin mr-2' />
+			Đang tải trình soạn thảo...
+		</div>
+	),
+});
 
 interface ProductFormData {
 	name: string;
@@ -35,6 +46,12 @@ const ProductFormBasicInfo: React.FC<ProductFormBasicInfoProps> = ({
 	onGenerateSlug,
 	watchedName,
 }) => {
+	const [isClient, setIsClient] = useState(false);
+
+	useEffect(() => {
+		setIsClient(true);
+	}, []);
+
 	// Fetch categories from API
 	const {
 		data: categoriesData,
@@ -171,15 +188,22 @@ const ProductFormBasicInfo: React.FC<ProductFormBasicInfoProps> = ({
 							<FormLabel>Mô tả *</FormLabel>
 							<FormControl>
 								<div className='min-h-[200px]'>
-									<ReactQuill
-										theme='snow'
-										value={field.value || ''}
-										onChange={field.onChange}
-										modules={quillModules}
-										formats={quillFormats}
-										placeholder='Nhập mô tả chi tiết về sản phẩm...'
-										style={{ height: '140px', marginBottom: '42px' }}
-									/>
+									{isClient ? (
+										<ReactQuill
+											theme='snow'
+											value={field.value || ''}
+											onChange={field.onChange}
+											modules={quillModules}
+											formats={quillFormats}
+											placeholder='Nhập mô tả chi tiết về sản phẩm...'
+											style={{ height: '140px', marginBottom: '42px' }}
+										/>
+									) : (
+										<div className='border rounded-md p-3 min-h-[140px] flex items-center justify-center text-gray-500'>
+											<Loader2 className='h-6 w-6 animate-spin mr-2' />
+											Đang tải trình soạn thảo...
+										</div>
+									)}
 								</div>
 							</FormControl>
 							<FormMessage />

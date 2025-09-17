@@ -308,6 +308,12 @@ export const formatFileSize = (bytes: number): string => {
 
 export const getImageDimensions = (file: File): Promise<{ width: number; height: number }> => {
   return new Promise((resolve, reject) => {
+    // Check if we're in browser environment
+    if (typeof window === 'undefined') {
+      resolve({ width: 0, height: 0 });
+      return;
+    }
+
     const img = new Image();
     const url = URL.createObjectURL(file);
 
