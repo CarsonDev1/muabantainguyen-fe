@@ -185,7 +185,6 @@ export const withAuth = <P extends object>(Component: React.ComponentType<P>) =>
 				</div>
 			);
 		}
-
 		return <Component {...props} />;
 	};
 };

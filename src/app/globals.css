@@ -89,3 +89,97 @@
 		@apply bg-background text-foreground;
 	}
 }
+
+/* sidebar.css */
+.sidebar-hover-scrollbar {
+	/* Ẩn scrollbar mặc định */
+	scrollbar-width: none; /* Firefox */
+	-ms-overflow-style: none; /* IE và Edge */
+	scroll-behavior: smooth;
+}
+
+.sidebar-hover-scrollbar::-webkit-scrollbar {
+	width: 0px;
+	background: transparent;
+}
+
+/* Hiện scrollbar khi hover */
+.sidebar-hover-scrollbar:hover {
+	scrollbar-width: thin;
+	scrollbar-color: rgba(71, 85, 105, 0.7) transparent;
+}
+
+.sidebar-hover-scrollbar:hover::-webkit-scrollbar {
+	width: 6px;
+	transition: width 0.3s ease;
+}
+
+.sidebar-hover-scrollbar:hover::-webkit-scrollbar-track {
+	background: transparent;
+	border-radius: 3px;
+}
+
+.sidebar-hover-scrollbar:hover::-webkit-scrollbar-thumb {
+	background: rgba(71, 85, 105, 0.7);
+	border-radius: 3px;
+	transition: background 0.2s ease;
+	animation: scrollbarFadeIn 0.2s ease-out;
+}
+
+.sidebar-hover-scrollbar:hover::-webkit-scrollbar-thumb:hover {
+	background: rgba(100, 116, 139, 0.9);
+}
+
+/* Animation cho việc xuất hiện scrollbar */
+@keyframes scrollbarFadeIn {
+	from {
+		opacity: 0;
+		transform: scaleX(0);
+	}
+	to {
+		opacity: 1;
+		transform: scaleX(1);
+	}
+}
+
+/* Dark mode specific styles */
+.dark .sidebar-hover-scrollbar:hover {
+	scrollbar-color: rgba(55, 65, 81, 0.8) transparent;
+}
+
+.dark .sidebar-hover-scrollbar:hover::-webkit-scrollbar-thumb {
+	background: rgba(55, 65, 81, 0.8);
+}
+
+.dark .sidebar-hover-scrollbar:hover::-webkit-scrollbar-thumb:hover {
+	background: rgba(75, 85, 99, 0.9);
+}
+
+/* Optional: Custom scrollbar với màu sắc khác */
+.sidebar-hover-scrollbar.variant-blue:hover::-webkit-scrollbar-thumb {
+	background: rgba(59, 130, 246, 0.6);
+}
+
+.sidebar-hover-scrollbar.variant-blue:hover::-webkit-scrollbar-thumb:hover {
+	background: rgba(59, 130, 246, 0.8);
+}
+
+/* Extra thin scrollbar */
+.sidebar-hover-scrollbar.thin:hover::-webkit-scrollbar {
+	width: 4px;
+}
+
+/* Glow effect cho scrollbar */
+.sidebar-hover-scrollbar.glow:hover::-webkit-scrollbar-thumb {
+	background: rgba(71, 85, 105, 0.7);
+	box-shadow: 0 0 8px rgba(71, 85, 105, 0.4);
+}
+
+/* Rounded scrollbar */
+.sidebar-hover-scrollbar.rounded:hover::-webkit-scrollbar {
+	border-radius: 10px;
+}
+
+.sidebar-hover-scrollbar.rounded:hover::-webkit-scrollbar-thumb {
+	border-radius: 10px;
+}

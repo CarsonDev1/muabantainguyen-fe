@@ -1,18 +1,17 @@
 import type { Metadata } from 'next';
-import localFont from 'next/font/local';
-import '../globals.css';
 import { ThemeProvider } from '@/components/theme-provider';
+import { Nunito } from 'next/font/google';
+import { SidebarProvider, SidebarTrigger } from '@/components/ui/sidebar';
+import { AuthProvider } from '@/context/auth-context';
+import Provider from '@/provider';
+import { ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+import 'react-quill/dist/quill.snow.css';
+import '../globals.css';
+import { UserSidebar } from '@/app/(root)/components/sidebar';
+import { Header } from '@/components/layout/header';
 
-const geistSans = localFont({
-	src: './fonts/GeistVF.woff',
-	variable: '--font-geist-sans',
-	weight: '100 900',
-});
-const geistMono = localFont({
-	src: './fonts/GeistMonoVF.woff',
-	variable: '--font-geist-mono',
-	weight: '100 900',
-});
+const inter = Nunito({ subsets: ['latin'], weight: ['300', '400', '500', '700', '900'] });
 
 export const metadata: Metadata = {
 	title: 'Create Next App',
@@ -26,10 +25,29 @@ export default function RootLayout({
 }>) {
 	return (
 		<html lang='en' suppressHydrationWarning>
-			<body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
-				<ThemeProvider disableTransitionOnChange attribute='class' defaultTheme='system' enableSystem>
-					{children}
-				</ThemeProvider>
+			<body className={inter.className}>
+				<Provider>
+					<AuthProvider>
+						<SidebarProvider defaultOpen={true}>
+							<ThemeProvider
+								disableTransitionOnChange
+								attribute='class'
+								defaultTheme='system'
+								enableSystem
+							>
+								<UserSidebar />
+								<main className='flex-1 flex flex-col'>
+									<div className='flex items-center p-2 border-b sticky top-0 left-0 z-50 bg-white'>
+										<SidebarTrigger />
+										<Header />
+									</div>
+									<div className='p-4'>{children}</div>
+								</main>
+								<ToastContainer />
+							</ThemeProvider>
+						</SidebarProvider>
+					</AuthProvider>
+				</Provider>
 			</body>
 		</html>
 	);

@@ -38,7 +38,6 @@ const ProfileAdmin = () => {
 	const { data: walletData } = useQuery({
 		queryKey: ['wallet'],
 		queryFn: getWallet,
-		refetchInterval: 30000,
 	});
 
 	const SUBMIT_COOLDOWN = 2000;

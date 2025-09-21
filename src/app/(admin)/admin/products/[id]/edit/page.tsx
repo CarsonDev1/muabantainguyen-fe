@@ -11,7 +11,7 @@ import { ArrowLeft, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Form } from '@/components/ui/form';
 import { Card, CardContent } from '@/components/ui/card';
-import { productsService, type UpdateProductRequest } from '@/services/product-service';
+import productsService, { type UpdateProductRequest } from '@/services/product-service';
 import { type UploadedImage } from '@/services/upload-service';
 import ProductFormBasicInfo from '@/app/(admin)/admin/products/components/product-info';
 import ProductFormPricing from '@/app/(admin)/admin/products/components/product-pricing';

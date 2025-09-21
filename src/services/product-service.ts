@@ -1,210 +1,148 @@
 import api from '@/lib/api';
 
-// Types
 export interface Product {
   id: string;
   name: string;
   slug: string;
   description: string;
   price: number;
-  stock: number;
-  image_url: string;
-  category_id: string;
-  created_at?: string;
-  updatedAt?: string;
-}
-
-export interface CreateProductRequest {
-  name: string;
-  slug: string;
-  description: string;
-  price: number;
-  stock: number;
-  image_url: string;
-  category_id: string;
-}
-
-export interface UpdateProductRequest {
-  name?: string;
-  slug?: string;
-  description?: string;
-  price?: number;
-  stock?: number;
+  original_price?: number;
+  images: string[];
   image_url?: string;
-  category_id?: string;
+  category_id: string;
+  category_name: string;
+  category_slug?: string;
+  is_active: boolean;
+  stock_quantity: number;
+  stock: number;
+  sold_count: number;
+  rating?: number;
+  review_count?: number;
+  tags: string[];
+  created_at: string;
+  updated_at: string;
+}
+
+export interface ProductFilter {
+  search?: string;
+  category?: string;
+  minPrice?: number;
+  maxPrice?: number;
+  sortBy?: 'name' | 'price' | 'created_at' | 'sold_count' | 'rating';
+  sortOrder?: 'asc' | 'desc';
+  page?: number;
+  pageSize?: number;
 }
 
 export interface ProductResponse {
-  success: boolean;
-  message?: string;
-  product?: Product;
+  products: Product[];
+  total: number;
+  page: number;
+  pageSize: number;
+  totalPages: number;
 }
 
-export interface ProductsResponse {
-  success: boolean;
-  message?: string;
-  items?: Product[];
-  total?: number;
-  page?: number;
-  limit?: number;
-  pageSize?: number;
-  totalPages?: number;
+export interface SingleProductResponse {
+  product: Product;
 }
 
-// API Functions
-export const productsService = {
-  // POST /api/admin/products - Create product
-  createProduct: async (data: CreateProductRequest): Promise<ProductResponse> => {
-    try {
-      const response = await api.post('/admin/products', data);
-      return response.data;
-    } catch (error: any) {
-      throw new Error(error.response?.data?.message || 'Failed to create product');
-    }
-  },
+export const getProducts = async (filters?: ProductFilter): Promise<ProductResponse> => {
+  const params = new URLSearchParams();
 
-  // PUT /api/admin/products/{id} - Update product
-  updateProduct: async (id: string, data: UpdateProductRequest): Promise<ProductResponse> => {
-    try {
-      const response = await api.put(`/admin/products/${id}`, data);
-      return response.data;
-    } catch (error: any) {
-      throw new Error(error.response?.data?.message || 'Failed to update product');
-    }
-  },
+  if (filters?.search) params.append('search', filters.search);
+  if (filters?.category) params.append('category', filters.category);
+  if (filters?.minPrice) params.append('minPrice', filters.minPrice.toString());
+  if (filters?.maxPrice) params.append('maxPrice', filters.maxPrice.toString());
+  if (filters?.sortBy) params.append('sortBy', filters.sortBy);
+  if (filters?.sortOrder) params.append('sortOrder', filters.sortOrder);
+  if (filters?.page) params.append('page', filters.page.toString());
+  if (filters?.pageSize) params.append('pageSize', filters.pageSize.toString());
 
-  // DELETE /api/admin/products/{id} - Delete product
-  deleteProduct: async (id: string): Promise<ProductResponse> => {
-    try {
-      const response = await api.delete(`/admin/products/${id}`);
-      return response.data;
-    } catch (error: any) {
-      throw new Error(error.response?.data?.message || 'Failed to delete product');
-    }
-  },
-
-  // GET /api/admin/products/{id} - Get product by ID (helper function)
-  getProductById: async (id: string): Promise<ProductResponse> => {
-    try {
-      const response = await api.get(`/admin/products/${id}`);
-      return response.data;
-    } catch (error: any) {
-      throw new Error(error.response?.data?.message || 'Failed to fetch product');
-    }
-  },
-
-  // GET /api/products - Get all products with pagination
-  getAllProducts: async (params?: {
-    page?: number;
-    limit?: number;
-    search?: string;
-    category_id?: string;
-    minPrice?: number;
-    maxPrice?: number;
-    inStock?: boolean;
-    sortBy?: string;
-    sortOrder?: 'asc' | 'desc';
-    image_url?: string;
-  }): Promise<ProductsResponse> => {
-    try {
-      // Use the public products API endpoint with mapping
-      const apiParams = {
-        ...(params?.page && { page: params.page }),
-        ...(params?.limit && { pageSize: params.limit }),
-        ...(params?.search && { q: params.search }),
-        ...(params?.category_id && { category_id: params.category_id }),
-        ...(params?.minPrice && { minPrice: params.minPrice }),
-        ...(params?.maxPrice && { maxPrice: params.maxPrice }),
-        ...(params?.inStock !== undefined && { inStock: params.inStock }),
-        ...(params?.image_url && { image_url: params.image_url }),
-      };
-
-      const response = await api.get('/products', { params: apiParams });
-      const data: ProductsResponse = response.data;
-
-      // Map the response to match ProductsResponse interface
-      return {
-        success: true,
-        message: data.message,
-        items: data.items,
-        total: data.total,
-        page: data.page,
-        pageSize: data.pageSize || 12,
-        totalPages: data.totalPages || 1,
-      };
-    } catch (error: any) {
-      throw new Error(error.response?.data?.message || 'Failed to fetch products');
-    }
-  },
-
-  // GET /api/products - Get public products (for frontend)
-  getPublicProducts: async (params?: {
-    page?: number;
-    limit?: number;
-    search?: string;
-    category_id?: string;
-    sortBy?: string;
-    sortOrder?: 'asc' | 'desc';
-  }): Promise<ProductsResponse> => {
-    try {
-      const response = await api.get('/products', { params });
-      return response.data;
-    } catch (error: any) {
-      throw new Error(error.response?.data?.message || 'Failed to fetch products');
-    }
-  },
-
-  // GET /api/products/{id} - Get public product by ID
-  getPublicProductById: async (id: string): Promise<ProductResponse> => {
-    try {
-      const response = await api.get(`/products/${id}`);
-      return response.data;
-    } catch (error: any) {
-      throw new Error(error.response?.data?.message || 'Failed to fetch product');
-    }
-  },
-
-  // GET /api/products/slug/{slug} - Get product by slug
-  getProductBySlug: async (slug: string): Promise<ProductResponse> => {
-    try {
-      const response = await api.get(`/products/slug/${slug}`);
-      return response.data;
-    } catch (error: any) {
-      throw new Error(error.response?.data?.message || 'Failed to fetch product');
-    }
-  },
-
-  // GET /api/products/category/{category_id} - Get products by category
-  getProductsByCategory: async (
-    category_id: string,
-    params?: {
-      page?: number;
-      limit?: number;
-      sortBy?: string;
-      sortOrder?: 'asc' | 'desc';
-    }
-  ): Promise<ProductsResponse> => {
-    try {
-      const response = await api.get(`/products/category/${category_id}`, { params });
-      return response.data;
-    } catch (error: any) {
-      throw new Error(error.response?.data?.message || 'Failed to fetch products by category');
-    }
-  },
+  const response = await api.get(`/products?${params.toString()}`);
+  return response.data;
 };
 
-// Export individual functions for convenience
-export const {
+export const getProductById = async (id: string): Promise<SingleProductResponse> => {
+  const response = await api.get(`/admin/products/${id}`);
+  return response.data;
+};
+
+export const getProductBySlug = async (slug: string): Promise<SingleProductResponse> => {
+  const response = await api.get(`/products/${slug}`);
+  return response.data;
+};
+
+export const getFeaturedProducts = async (limit: number = 8): Promise<Product[]> => {
+  const response = await api.get(`/products/featured?limit=${limit}`);
+  return response.data.products;
+};
+
+export const getRelatedProducts = async (productId: string, limit: number = 4): Promise<Product[]> => {
+  const response = await api.get(`/products/${productId}/related?limit=${limit}`);
+  return response.data.products;
+};
+
+// Admin functions
+export interface AdminProductFilter {
+  page?: number;
+  limit?: number;
+  search?: string;
+  category_id?: string;
+  minPrice?: number;
+  maxPrice?: number;
+  sortBy?: string;
+  sortOrder?: 'asc' | 'desc';
+}
+
+export interface AdminProductResponse {
+  items: Product[];
+  total: number;
+  page: number;
+  pageSize: number;
+  totalPages: number;
+}
+
+export const getAllProducts = async (filters?: AdminProductFilter): Promise<AdminProductResponse> => {
+  const params = new URLSearchParams();
+
+  if (filters?.page) params.append('page', filters.page.toString());
+  if (filters?.limit) params.append('pageSize', filters.limit.toString());
+  if (filters?.search) params.append('q', filters.search);
+  if (filters?.category_id) params.append('categoryId', filters.category_id);
+  if (filters?.minPrice) params.append('minPrice', filters.minPrice.toString());
+  if (filters?.maxPrice) params.append('maxPrice', filters.maxPrice.toString());
+  if (filters?.sortBy) params.append('sortBy', filters.sortBy);
+  if (filters?.sortOrder) params.append('sortOrder', filters.sortOrder);
+
+  const response = await api.get(`/admin/products?${params.toString()}`);
+  return response.data;
+};
+
+export const createProduct = async (productData: Partial<Product>): Promise<SingleProductResponse> => {
+  const response = await api.post('/admin/products', productData);
+  return response.data;
+};
+
+export const updateProduct = async (id: string, productData: Partial<Product>): Promise<SingleProductResponse> => {
+  const response = await api.put(`/admin/products/${id}`, productData);
+  return response.data;
+};
+
+export const deleteProduct = async (id: string): Promise<void> => {
+  await api.delete(`/admin/products/${id}`);
+};
+
+// Default export for backward compatibility
+const productsService = {
+  getAllProducts,
   createProduct,
   updateProduct,
   deleteProduct,
+  getProducts,
   getProductById,
-  getAllProducts,
-  getPublicProducts,
-  getPublicProductById,
   getProductBySlug,
-  getProductsByCategory,
-} = productsService;
+  getFeaturedProducts,
+  getRelatedProducts,
+};
 
-// Export default
 export default productsService;

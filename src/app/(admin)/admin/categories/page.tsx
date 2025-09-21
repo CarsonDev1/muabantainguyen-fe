@@ -39,12 +39,12 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
-import {
-	categoriesService,
+import categoryService, {
 	type Category,
 	type CreateCategoryRequest,
 	type UpdateCategoryRequest,
-} from '@/services/categories-service';
+} from '@/services/category-service';
+import { CategoryImageUpload } from './components/category-image-upload';
 
 const CategoriesPage = () => {
 	const queryClient = useQueryClient();
@@ -58,12 +58,14 @@ const CategoriesPage = () => {
 		name: '',
 		slug: '',
 		parentId: undefined,
+		image: undefined,
 	});
 
 	const [editFormData, setEditFormData] = useState<UpdateCategoryRequest>({
 		name: '',
 		slug: '',
 		parentId: undefined,
+		image: undefined,
 	});
 
 	// Get categories query
@@ -74,13 +76,13 @@ const CategoriesPage = () => {
 		error,
 	} = useQuery({
 		queryKey: ['categories', 'tree'],
-		queryFn: categoriesService.getCategoryTree,
+		queryFn: categoryService.getCategoryTree,
 		staleTime: 5 * 60 * 1000,
 	});
 
 	// Create category mutation
 	const createMutation = useMutation({
-		mutationFn: categoriesService.createCategory,
+		mutationFn: categoryService.createCategory,
 		onSuccess: () => {
 			toast.success('Tạo danh mục thành công');
 			setCreateOpen(false);
@@ -95,7 +97,7 @@ const CategoriesPage = () => {
 	// Update category mutation
 	const updateMutation = useMutation({
 		mutationFn: ({ id, data }: { id: string; data: UpdateCategoryRequest }) =>
-			categoriesService.updateCategory(id, data),
+			categoryService.updateCategory(id, data),
 		onSuccess: () => {
 			toast.success('Cập nhật danh mục thành công');
 			setEditOpen(false);
@@ -108,7 +110,7 @@ const CategoriesPage = () => {
 
 	// Delete category mutation
 	const deleteMutation = useMutation({
-		mutationFn: categoriesService.deleteCategory,
+		mutationFn: categoryService.deleteCategory,
 		onSuccess: () => {
 			toast.success('Xóa danh mục thành công');
 			setDeleteOpen(false);
@@ -125,6 +127,7 @@ const CategoriesPage = () => {
 			name: '',
 			slug: '',
 			parentId: undefined,
+			image: undefined,
 		});
 	};
 
@@ -148,6 +151,7 @@ const CategoriesPage = () => {
 				name: selectedCategory.name,
 				slug: selectedCategory.slug || '',
 				parentId: selectedCategory.parentId || undefined,
+				image: selectedCategory.image || undefined,
 			});
 		}
 	}, [editOpen, selectedCategory]);
@@ -235,6 +239,17 @@ const CategoriesPage = () => {
 		};
 		return flatten(categoriesData?.tree || []);
 	}, [categoriesData]);
+
+	// Helper function to get parent ID (handles both parentId and parent_id)
+	const getParentId = (category: Category): string | null => {
+		return category.parentId || category.parent_id || null;
+	};
+
+	// Helper function to check if category is root
+	const isRootCategory = (category: Category): boolean => {
+		const parentId = getParentId(category);
+		return !parentId;
+	};
 
 	// Get available parent categories for editing (excluding current category and its children)
 	const getAvailableParentCategories = (): Array<Category> => {
@@ -384,7 +399,7 @@ const CategoriesPage = () => {
 						<CardContent className='p-2'>
 							<div className='max-h-[600px] overflow-y-auto space-y-1'>
 								{categories.length > 0 ? (
-									renderCategoryTree(categories.filter((cat) => !cat.parentId))
+									renderCategoryTree(categories.filter((cat) => isRootCategory(cat)))
 								) : (
 									<div className='text-center py-4'>
 										<div className='bg-gradient-to-br from-gray-50 to-blue-50 border-2 border-dashed border-gray-200 rounded-xl p-8'>
@@ -464,15 +479,28 @@ const CategoriesPage = () => {
 												</code>
 											</div>
 										)}
-										{selectedCategory.parentId && (
+										{getParentId(selectedCategory) && (
 											<div>
 												<Label className='text-sm font-medium text-gray-600'>
 													Danh mục cha
 												</Label>
 												<p className='text-gray-800 mt-1'>
-													{flatCategories.find((cat) => cat.id === selectedCategory.parentId)
-														?.name || 'Không xác định'}
+													{flatCategories.find(
+														(cat) => cat.id === getParentId(selectedCategory)
+													)?.name || 'Không xác định'}
 												</p>
+											</div>
+										)}
+										{selectedCategory.image && (
+											<div>
+												<Label className='text-sm font-medium text-gray-600'>Hình ảnh</Label>
+												<div className='mt-2'>
+													<img
+														src={selectedCategory.image}
+														alt={selectedCategory.name}
+														className='w-24 h-24 object-cover rounded-lg border'
+													/>
+												</div>
 											</div>
 										)}
 									</div>
@@ -528,7 +556,7 @@ const CategoriesPage = () => {
 
 			{/* Create Category Dialog */}
 			<Dialog open={createOpen} onOpenChange={setCreateOpen}>
-				<DialogContent className='sm:max-w-[500px]'>
+				<DialogContent className='sm:max-w-[600px]'>
 					<DialogHeader>
 						<DialogTitle>Tạo danh mục mới</DialogTitle>
 						<DialogDescription>
@@ -580,6 +608,13 @@ const CategoriesPage = () => {
 								</SelectContent>
 							</Select>
 						</div>
+						<div className='space-y-2'>
+							<CategoryImageUpload
+								value={formData.image}
+								onChange={(imageUrl) => setFormData((prev) => ({ ...prev, image: imageUrl }))}
+								disabled={createMutation.isPending}
+							/>
+						</div>
 						<DialogFooter className='gap-3'>
 							<Button
 								type='button'
@@ -613,7 +648,7 @@ const CategoriesPage = () => {
 
 			{/* Edit Category Dialog */}
 			<Dialog open={editOpen} onOpenChange={setEditOpen}>
-				<DialogContent className='sm:max-w-[500px]'>
+				<DialogContent className='sm:max-w-[600px]'>
 					<DialogHeader>
 						<DialogTitle>Chỉnh sửa danh mục</DialogTitle>
 						<DialogDescription>Cập nhật thông tin danh mục "{selectedCategory?.name}"</DialogDescription>
@@ -662,6 +697,13 @@ const CategoriesPage = () => {
 									))}
 								</SelectContent>
 							</Select>
+						</div>
+						<div className='space-y-2'>
+							<CategoryImageUpload
+								value={editFormData.image}
+								onChange={(imageUrl) => setEditFormData((prev) => ({ ...prev, image: imageUrl }))}
+								disabled={updateMutation.isPending}
+							/>
 						</div>
 						<DialogFooter className='gap-3'>
 							<Button

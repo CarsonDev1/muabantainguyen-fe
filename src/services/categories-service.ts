@@ -7,6 +7,7 @@ export interface Category {
   slug: string;
   parentId?: string;
   parent_id?: string | null; // Thêm để match với API response
+  image?: string; // Thêm field image
   children?: Category[];
   createdAt?: string;
   created_at?: string; // Thêm để match với API response
@@ -18,114 +19,60 @@ export interface CreateCategoryRequest {
   name: string;
   slug: string;
   parentId?: string;
+  image?: string; // Thêm field image
 }
 
 export interface UpdateCategoryRequest {
   name?: string;
   slug?: string;
   parentId?: string;
+  image?: string; // Thêm field image
 }
 
-export interface CategoryResponse {
-  success: boolean;
-  message?: string;
-  tree?: Category;
-}
-
-export interface CategoriesResponse {
-  success: boolean;
-  message?: string;
-  tree?: Category[];
-}
-
-export interface ProductCategoriesResponse {
-  message: string;
-  categories: Category[];
-}
-
-// API Functions
-export const categoriesService = {
-  // GET /api/products/categories - Get product categories (API mới)
-  getProductCategories: async (): Promise<ProductCategoriesResponse> => {
-    try {
-      const response = await api.get('/products/categories');
-      return response.data;
-    } catch (error: any) {
-      throw new Error(error.response?.data?.message || 'Failed to fetch product categories');
-    }
-  },
-
-  // GET /api/admin/categories/tree - Get category tree
-  getCategoryTree: async (): Promise<CategoriesResponse> => {
-    try {
-      const response = await api.get('/admin/categories/tree');
-      return response.data;
-    } catch (error: any) {
-      throw new Error(error.response?.data?.message || 'Failed to fetch category tree');
-    }
-  },
-
-  // POST /api/admin/categories - Create category
-  createCategory: async (data: CreateCategoryRequest): Promise<CategoryResponse> => {
-    try {
-      const response = await api.post('/admin/categories', data);
-      return response.data;
-    } catch (error: any) {
-      throw new Error(error.response?.data?.message || 'Failed to create category');
-    }
-  },
-
-  // PUT /api/admin/categories/{id} - Update category
-  updateCategory: async (id: string, data: UpdateCategoryRequest): Promise<CategoryResponse> => {
-    try {
-      const response = await api.put(`/admin/categories/${id}`, data);
-      return response.data;
-    } catch (error: any) {
-      throw new Error(error.response?.data?.message || 'Failed to update category');
-    }
-  },
-
-  // DELETE /api/admin/categories/{id} - Delete category
-  deleteCategory: async (id: string): Promise<CategoryResponse> => {
-    try {
-      const response = await api.delete(`/admin/categories/${id}`);
-      return response.data;
-    } catch (error: any) {
-      throw new Error(error.response?.data?.message || 'Failed to delete category');
-    }
-  },
-
-  // Helper function - Get category by ID (if needed)
-  getCategoryById: async (id: string): Promise<CategoryResponse> => {
-    try {
-      const response = await api.get(`/admin/categories/${id}`);
-      return response.data;
-    } catch (error: any) {
-      throw new Error(error.response?.data?.message || 'Failed to fetch category');
-    }
-  },
-
-  // Helper function - Get all categories (flat list)
-  getAllCategories: async (): Promise<CategoriesResponse> => {
-    try {
-      const response = await api.get('/admin/categories');
-      return response.data;
-    } catch (error: any) {
-      throw new Error(error.response?.data?.message || 'Failed to fetch categories');
-    }
-  },
+// API functions
+export const getCategories = async (): Promise<Category[]> => {
+  const response = await api.get('/public/categories');
+  return response.data.categories;
 };
 
-// Export individual functions for convenience
-export const {
-  getProductCategories, // Thêm function mới
+export const getCategoryTree = async (): Promise<Category[]> => {
+  const response = await api.get('/public/categories/tree');
+  return response.data.tree;
+};
+
+export const getCategoryBySlug = async (slug: string): Promise<Category> => {
+  const response = await api.get(`/public/categories/slug/${slug}`);
+  return response.data.category;
+};
+
+export const getCategoryById = async (id: string): Promise<Category> => {
+  const response = await api.get(`/admin/categories/${id}`);
+  return response.data.category;
+};
+
+export const createCategory = async (data: CreateCategoryRequest): Promise<Category> => {
+  const response = await api.post('/admin/categories', data);
+  return response.data.category;
+};
+
+export const updateCategory = async (id: string, data: UpdateCategoryRequest): Promise<Category> => {
+  const response = await api.put(`/admin/categories/${id}`, data);
+  return response.data.category;
+};
+
+export const deleteCategory = async (id: string): Promise<void> => {
+  await api.delete(`/admin/categories/${id}`);
+};
+
+// Default export for backward compatibility
+const categoriesService = {
+  getCategories,
   getCategoryTree,
+  getCategoryBySlug,
+  getCategoryById,
   createCategory,
   updateCategory,
   deleteCategory,
-  getCategoryById,
-  getAllCategories,
-} = categoriesService;
+};
 
-// Export default
-export default categoriesService;
+export default categoriesService; 

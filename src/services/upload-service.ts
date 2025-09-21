@@ -202,6 +202,81 @@ export const uploadAvatar = async (
   }
 };
 
+export const uploadSingleImage = async (
+  file: File,
+  options?: {
+    folder?: string;
+    onProgress?: (progress: number) => void;
+    onSuccess?: (result: SingleUploadResponse) => void;
+    onError?: (error: string) => void;
+  }
+): Promise<SingleUploadResponse> => {
+  try {
+    // Validate file
+    if (!file.type.startsWith('image/')) {
+      throw new Error('File must be an image');
+    }
+    if (file.size > 10 * 1024 * 1024) { // 10MB
+      throw new Error('File exceeds 10MB limit');
+    }
+
+    const formData = new FormData();
+    formData.append('files', file); // Use 'files' to match backend expectation
+
+    // Add folder if specified
+    if (options?.folder) {
+      formData.append('folder', options.folder);
+    }
+
+    const response = await api.post('/uploads/images', formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+      onUploadProgress: (progressEvent) => {
+        if (options?.onProgress && progressEvent.total) {
+          const progress = Math.round((progressEvent.loaded * 100) / progressEvent.total);
+          options.onProgress(progress);
+        }
+      },
+    });
+
+    const result = response.data as MultipleUploadResponse;
+
+    // Convert MultipleUploadResponse to SingleUploadResponse format
+    if (result.success && result.data.successful.length > 0) {
+      const uploadedImage = result.data.successful[0];
+      const singleResult: SingleUploadResponse = {
+        success: true,
+        message: result.message,
+        data: {
+          url: uploadedImage.url,
+          public_id: uploadedImage.public_id,
+          width: uploadedImage.width,
+          height: uploadedImage.height,
+          format: uploadedImage.format,
+          bytes: uploadedImage.bytes,
+        }
+      };
+
+      if (options?.onSuccess) {
+        options.onSuccess(singleResult);
+      }
+
+      return singleResult;
+    } else {
+      throw new Error(result.data.failed[0]?.error || 'Upload failed');
+    }
+  } catch (error: any) {
+    const errorMessage = error.response?.data?.message || error.message || 'Single image upload failed';
+
+    if (options?.onError) {
+      options.onError(errorMessage);
+    }
+
+    throw new Error(errorMessage);
+  }
+};
+
 export const uploadProductImages = async (
   files: File | File[],
   options?: ProductUploadOptions
@@ -394,6 +469,7 @@ export const uploadWithProgress = async (
 export const uploadService = {
   uploadImages,
   uploadAvatar,
+  uploadSingleImage,
   uploadProductImages,
   uploadWithProgress,
   validateImageFile,
@@ -406,6 +482,7 @@ export const uploadService = {
 export {
   uploadImages as uploadMultipleImages,
   uploadAvatar as uploadUserAvatar,
+  uploadSingleImage as uploadSinglePhoto,
   uploadProductImages as uploadProductPhotos,
   uploadWithProgress as uploadFilesWithProgress,
 };
