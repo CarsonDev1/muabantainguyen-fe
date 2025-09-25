@@ -25,7 +25,7 @@ export interface Product {
 
 export interface ProductFilter {
   search?: string;
-  category?: string;
+  category?: string; // categoryId
   minPrice?: number;
   maxPrice?: number;
   sortBy?: 'name' | 'price' | 'created_at' | 'sold_count' | 'rating';
@@ -49,8 +49,8 @@ export interface SingleProductResponse {
 export const getProducts = async (filters?: ProductFilter): Promise<ProductResponse> => {
   const params = new URLSearchParams();
 
-  if (filters?.search) params.append('search', filters.search);
-  if (filters?.category) params.append('category', filters.category);
+  if (filters?.search) params.append('q', filters.search);
+  if (filters?.category) params.append('categoryId', filters.category);
   if (filters?.minPrice) params.append('minPrice', filters.minPrice.toString());
   if (filters?.maxPrice) params.append('maxPrice', filters.maxPrice.toString());
   if (filters?.sortBy) params.append('sortBy', filters.sortBy);
@@ -59,7 +59,41 @@ export const getProducts = async (filters?: ProductFilter): Promise<ProductRespo
   if (filters?.pageSize) params.append('pageSize', filters.pageSize.toString());
 
   const response = await api.get(`/products?${params.toString()}`);
-  return response.data;
+  const data = response.data as any;
+
+  // Backend returns { items: [...], total, page, pageSize, totalPages }
+  const items = Array.isArray(data?.items) ? data.items : Array.isArray(data?.products) ? data.products : [];
+
+  const products: Product[] = items.map((it: any) => ({
+    id: it.id,
+    name: it.name,
+    slug: it.slug,
+    description: it.description ?? '',
+    price: typeof it.price === 'number' ? it.price : Number(it.price ?? 0),
+    original_price: typeof it.original_price === 'number' ? it.original_price : (it.original_price ? Number(it.original_price) : undefined),
+    images: it.images ?? [],
+    image_url: it.image_url,
+    category_id: it.category_id,
+    category_name: it.category_name ?? '',
+    category_slug: it.category_slug,
+    is_active: it.is_active ?? true,
+    stock_quantity: it.stock_quantity ?? it.stock ?? 0,
+    stock: it.stock ?? it.stock_quantity ?? 0,
+    sold_count: it.sold_count ?? 0,
+    rating: it.rating,
+    review_count: it.review_count,
+    tags: it.tags ?? [],
+    created_at: it.created_at ?? '',
+    updated_at: it.updated_at ?? '',
+  }));
+
+  return {
+    products,
+    total: data?.total ?? products.length,
+    page: data?.page ?? filters?.page ?? 1,
+    pageSize: data?.pageSize ?? filters?.pageSize ?? products.length,
+    totalPages: data?.totalPages ?? 1,
+  };
 };
 
 export const getProductById = async (id: string): Promise<SingleProductResponse> => {

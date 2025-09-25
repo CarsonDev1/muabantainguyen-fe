@@ -410,13 +410,20 @@ export function UserSidebar() {
 														}`}
 													>
 														<Link href={item.url} className='flex items-center gap-3'>
-															<item.icon
-																className={`w-5 h-5 ${
-																	isItemActive
-																		? 'text-black dark:text-white'
-																		: 'text-slate-400 dark:text-gray-500'
-																}`}
-															/>
+															<div className='relative'>
+																<item.icon
+																	className={`w-5 h-5 ${
+																		isItemActive
+																			? 'text-black dark:text-white'
+																			: 'text-slate-400 dark:text-gray-500'
+																	}`}
+																/>
+																{item.title === 'Giỏ hàng' && cartItemCount > 0 && (
+																	<span className='absolute -top-2 -right-2 min-w-[16px] h-4 px-1.5 rounded-full bg-red-500 text-white text-[10px] leading-none flex items-center justify-center'>
+																		{cartItemCount > 99 ? '99+' : cartItemCount}
+																	</span>
+																)}
+															</div>
 															<span className='group-data-[collapsible=icon]:hidden'>
 																{item.title}
 															</span>

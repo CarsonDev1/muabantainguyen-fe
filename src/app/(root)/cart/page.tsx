@@ -97,7 +97,7 @@ function CartItemCard({ item }: { item: CartItem }) {
 				{/* Product Info */}
 				<div className='flex-1 min-w-0'>
 					<Link href={`/products/${item.slug}`} className='hover:text-blue-600'>
-						<h3 className='font-medium text-gray-900 dark:text-white truncate'>{item.name}</h3>
+						<h3 className='font-medium text-gray-900 dark:text-white'>{item.name}</h3>
 					</Link>
 					<p className='text-sm text-gray-600 dark:text-gray-400'>{formatCurrency(parseFloat(item.price))}</p>
 				</div>
@@ -335,9 +335,6 @@ export default function CartPage() {
 		);
 	}
 
-	// Debug log
-	console.log('Cart data:', cartData);
-
 	const items = cartData?.items || [];
 	const totalItems = items.reduce((sum, item) => sum + item.quantity, 0);
 	const totalAmount = cartData?.total || 0;
@@ -348,7 +345,7 @@ export default function CartPage() {
 
 	return (
 		<div className='min-h-screen bg-gray-50 dark:bg-gray-900'>
-			<div className='max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8'>
+			<div className='w-full mx-auto px-4 sm:px-6 lg:px-8 py-8'>
 				{/* Header */}
 				<div className='mb-6'>
 					<Link

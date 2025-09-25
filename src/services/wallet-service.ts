@@ -46,6 +46,7 @@ export interface CreateDepositResponse {
     bankName?: string;
     accountNumber?: string;
     accountName?: string;
+    qrUrl?: string;
     note?: string;
   };
 }
