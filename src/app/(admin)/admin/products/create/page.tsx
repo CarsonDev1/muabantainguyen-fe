@@ -10,7 +10,7 @@ import * as z from 'zod';
 import { ArrowLeft } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Form } from '@/components/ui/form';
-import productsService, { type CreateProductRequest } from '@/services/product-service';
+import productsService from '@/services/product-service';
 import { type UploadedImage } from '@/services/upload-service';
 import ProductFormBasicInfo from '@/app/(admin)/admin/products/components/product-info';
 import ProductFormPricing from '@/app/(admin)/admin/products/components/product-pricing';
@@ -65,7 +65,7 @@ const CreateProductPage = () => {
 
 	// Mutations
 	const createProductMutation = useMutation({
-		mutationFn: (data: CreateProductRequest) => productsService.createProduct(data),
+		mutationFn: (data: any) => productsService.createProduct(data),
 		onSuccess: () => {
 			queryClient.invalidateQueries({ queryKey: ['products'] });
 			toast.success('Tạo sản phẩm thành công!');

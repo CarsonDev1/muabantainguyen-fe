@@ -348,7 +348,7 @@ export default function AdminPromotionsPage() {
 								</TableRow>
 							</TableHeader>
 							<TableBody>
-								{promotions.map((promotion) => (
+								{promotions.map((promotion: any) => (
 									<TableRow key={promotion.id}>
 										<TableCell>
 											<div>

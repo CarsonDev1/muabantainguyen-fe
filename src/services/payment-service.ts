@@ -41,7 +41,6 @@ const paymentService = {
   },
 };
 
-export type { PaymentInstructions };
 export default paymentService;
 
 

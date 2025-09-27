@@ -9,8 +9,8 @@ import { Input } from '@/components/ui/input';
 import { FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { categoriesService } from '@/services/categories-service';
 import dynamic from 'next/dynamic';
+import categoriesService from '@/services/categories-service';
 
 // Dynamically import ReactQuill to avoid SSR issues
 const ReactQuill = dynamic(() => import('react-quill'), {
@@ -59,12 +59,12 @@ const ProductFormBasicInfo: React.FC<ProductFormBasicInfoProps> = ({
 		error: categoriesError,
 	} = useQuery({
 		queryKey: ['product-categories'],
-		queryFn: categoriesService.getProductCategories,
+		queryFn: categoriesService.getCategories,
 		staleTime: 5 * 60 * 1000,
 		retry: 2,
 	});
 
-	const categories = categoriesData?.categories || [];
+	const categories = categoriesData || [];
 
 	// React Quill configuration with full options
 	const quillModules = useMemo(
@@ -255,7 +255,7 @@ const ProductFormBasicInfo: React.FC<ProductFormBasicInfoProps> = ({
 											Không có danh mục nào
 										</SelectItem>
 									) : (
-										categories.map((category) => (
+										categories.map((category: any) => (
 											<SelectItem key={category.id} value={category.id}>
 												{category.name}
 											</SelectItem>
