@@ -1,58 +1,98 @@
+// src/services/order-service.ts
 import api from '@/lib/api';
 
 export interface OrderItem {
   id: string;
   product_id: string;
-  product_name: string;
-  product_image?: string;
+  name: string;
+  price: string | number;
   quantity: number;
-  price: number;
-  total_price: number;
+  created_at?: string;
 }
 
 export interface Order {
   id: string;
-  order_number: string;
   user_id: string;
-  items: OrderItem[];
-  total_amount: number;
-  status: 'pending' | 'paid' | 'completed' | 'cancelled' | 'refunded';
-  payment_method: 'wallet' | 'sepay' | 'momo';
-  payment_status: 'pending' | 'completed' | 'failed';
+  status: 'pending' | 'paid' | 'refunded';
+  total_amount: string | number;
+  payment_method: string;
   created_at: string;
   updated_at: string;
+  voucherCode: string;
 }
 
-export interface CreateOrderData {
-  items: Array<{
-    productId: string;
-    quantity: number;
-  }>;
-  paymentMethod: 'wallet' | 'sepay' | 'momo';
+export interface OrderDetail extends Order {
+  items: OrderItem[];
+  voucherCode: any;
+  wallet_transaction?: {
+    id: string;
+    amount: number;
+    created_at: string;
+    status: string;
+    description: string;
+  };
 }
 
-export const getOrders = async (page: number = 1, pageSize: number = 10): Promise<{
-  orders: Order[];
-  total: number;
-  page: number;
-  pageSize: number;
-  totalPages: number;
-}> => {
-  const response = await api.get(`/orders?page=${page}&pageSize=${pageSize}`);
-  return response.data;
+export interface OrderStats {
+  total_orders: number;
+  pending_orders: number;
+  paid_orders: number;
+  refunded_orders: number;
+  total_spent: number;
+  wallet_payments: number;
+  external_payments: number;
+}
+
+export interface OrdersListResponse {
+  success: boolean;
+  message: string;
+  items: Order[];
+  page?: number;
+  pageSize?: number;
+  total?: number;
+  totalPages?: number;
+}
+
+export interface OrderDetailResponse {
+  success: boolean;
+  message: string;
+  order: OrderDetail;
+}
+
+export interface OrderStatsResponse {
+  success: boolean;
+  message: string;
+  stats: OrderStats;
+}
+
+const orderService = {
+  // List orders
+  async getOrders(params?: { page?: number; pageSize?: number }): Promise<OrdersListResponse> {
+    const res = await api.get('/orders', { params });
+    return res.data;
+  },
+
+  // Get order detail (enhanced)
+  async getOrderById(orderId: string): Promise<OrderDetailResponse> {
+    const res = await api.get(`/orders/${orderId}`);
+    return res.data;
+  },
+
+  // Get order statistics
+  async getOrderStats(): Promise<OrderStatsResponse> {
+    const res = await api.get('/orders/stats');
+    return res.data;
+  },
+
+  // Enhanced checkout
+  async enhancedCheckout(data: {
+    paymentMethod?: 'wallet' | 'sepay' | 'momo';
+    useWallet?: boolean;
+    voucherCode?: any;
+  }): Promise<any> {
+    const res = await api.post('/orders/checkout', data);
+    return res.data;
+  },
 };
 
-export const getOrderById = async (id: string): Promise<Order> => {
-  const response = await api.get(`/orders/${id}`);
-  return response.data.order;
-};
-
-export const createOrder = async (data: CreateOrderData): Promise<{ success: boolean; message: string; order: Order }> => {
-  const response = await api.post('/orders', data);
-  return response.data;
-};
-
-export const cancelOrder = async (id: string): Promise<{ success: boolean; message: string }> => {
-  const response = await api.put(`/orders/${id}/cancel`);
-  return response.data;
-};
+export default orderService;

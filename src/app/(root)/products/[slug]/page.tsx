@@ -72,9 +72,14 @@ function ProductDetailContent({ product, productCategory }: { product: any; prod
 			router.push('/sign-in');
 			return;
 		}
+
 		// Add to cart first, then redirect to checkout
-		addToCartMutation.mutate();
-		// You can add logic here to redirect to checkout after successful add
+		addToCartMutation.mutate(undefined, {
+			onSuccess: () => {
+				// Redirect to checkout page after successful add to cart
+				router.push('/checkout');
+			},
+		});
 	};
 
 	return (
@@ -93,14 +98,15 @@ function ProductDetailContent({ product, productCategory }: { product: any; prod
 			<div className='grid grid-cols-1 lg:grid-cols-2 gap-8 mb-12'>
 				{/* Product Images */}
 				<div className='space-y-4'>
-					<div className='aspect-square rounded-lg overflow-hidden bg-white dark:bg-gray-800'>
+					<div className='flex justify-center items-center rounded-lg overflow-hidden'>
 						{product.image_url ? (
 							<Image
 								src={product.image_url}
 								alt={product.name}
 								width={1200}
 								height={1200}
-								className='w-full h-full object-cover'
+								quality={100}
+								className='w-80 object-cover'
 							/>
 						) : (
 							<div className='w-full h-full flex items-center justify-center'>

@@ -47,6 +47,17 @@ export interface VouchersResponse {
   };
 }
 
+export interface ApplyVoucherRequest {
+  code: string;
+  amount: number;
+}
+
+export interface ApplyVoucherResponse {
+  message: string;
+  discountedAmount: number;
+  discount?: number;
+}
+
 export const voucherService = {
   async getVouchers(): Promise<VouchersResponse> {
     const response = await api.get('/admin/vouchers');
@@ -60,6 +71,11 @@ export const voucherService = {
 
   async updateVoucher(id: string, data: UpdateVoucherRequest): Promise<Voucher> {
     const response = await api.put(`/admin/vouchers/${id}`, data);
+    return response.data;
+  },
+
+  async applyVoucher(data: ApplyVoucherRequest): Promise<ApplyVoucherResponse> {
+    const response = await api.post('/vouchers/apply', data);
     return response.data;
   },
 

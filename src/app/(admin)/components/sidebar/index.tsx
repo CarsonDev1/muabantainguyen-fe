@@ -25,6 +25,7 @@ import {
 	MessageSquare,
 	Bell,
 	HelpCircle,
+	Package,
 } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
@@ -43,6 +44,7 @@ const items = [
 	{ title: 'Sản phẩm', url: '/admin/products', icon: Search },
 	{ title: 'Khuyến mãi', url: '/admin/promotions', icon: Percent },
 	{ title: 'Ví', url: '/admin/wallet', icon: Wallet },
+	{ title: 'Quản lý Kho', url: '/admin/inventory', icon: Package },
 	{ title: 'FAQ', url: '/admin/faqs', icon: HelpCircle },
 	{ title: 'Thông báo', url: '/admin/announcements', icon: Bell },
 	{ title: 'Cài đặt', url: '/admin/settings', icon: Settings },

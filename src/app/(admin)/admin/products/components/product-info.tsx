@@ -59,7 +59,7 @@ const ProductFormBasicInfo: React.FC<ProductFormBasicInfoProps> = ({
 		error: categoriesError,
 	} = useQuery({
 		queryKey: ['product-categories'],
-		queryFn: categoriesService.getCategories,
+		queryFn: categoriesService.getCategoryTree,
 		staleTime: 5 * 60 * 1000,
 		retry: 2,
 	});

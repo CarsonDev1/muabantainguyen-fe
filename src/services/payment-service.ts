@@ -1,9 +1,5 @@
+// src/services/payment-service.ts
 import api from '@/lib/api';
-
-export interface StartPaymentRequest {
-  orderId: string;
-  amount: number;
-}
 
 export interface PaymentInstructions {
   amount: number;
@@ -14,6 +10,7 @@ export interface PaymentInstructions {
   accountNumber?: string;
   accountName?: string;
   note?: string;
+  qrUrl?: string; // ← IMPORTANT: QR from backend
 }
 
 export interface StartPaymentResponse {
@@ -22,25 +19,11 @@ export interface StartPaymentResponse {
   instructions: PaymentInstructions;
 }
 
-export interface CheckoutPaymentResponse {
-  message: string;
-  orderId: string;
-  transactionId: string;
-  instructions: PaymentInstructions;
-}
-
 const paymentService = {
-  async startPayment(data: StartPaymentRequest): Promise<StartPaymentResponse> {
-    const res = await api.post('/payments/start', data);
-    return res.data as StartPaymentResponse;
-  },
-
-  async checkoutAndCreatePayment(): Promise<CheckoutPaymentResponse> {
-    const res = await api.post('/payments/checkout');
-    return res.data as CheckoutPaymentResponse;
+  async startPayment(orderId: string, amount: number): Promise<StartPaymentResponse> {
+    const res = await api.post('/payments/start', { orderId, amount });
+    return res.data;
   },
 };
 
 export default paymentService;
-
-

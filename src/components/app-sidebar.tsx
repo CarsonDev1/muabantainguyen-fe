@@ -1,4 +1,18 @@
-import { Calendar, Home, Inbox, Search, Settings, Wallet } from 'lucide-react';
+import {
+	Home,
+	Inbox,
+	Users,
+	Shield,
+	Settings,
+	Tag,
+	Calendar,
+	Search,
+	Percent,
+	Wallet,
+	HelpCircle,
+	Bell,
+	Package,
+} from 'lucide-react';
 
 import {
 	Sidebar,
@@ -14,33 +28,73 @@ import {
 // Menu items.
 const items = [
 	{
-		title: 'Home',
-		url: '#',
+		title: 'Trang chủ',
+		url: '/admin',
 		icon: Home,
 	},
 	{
-		title: 'Inbox',
-		url: '#',
+		title: 'Danh mục',
+		url: '/admin/categories',
 		icon: Inbox,
 	},
 	{
-		title: 'Calendar',
-		url: '#',
+		title: 'Người dùng',
+		url: '/admin/users',
+		icon: Users,
+	},
+	{
+		title: 'Quản trị viên',
+		url: '/admin/admins',
+		icon: Shield,
+	},
+	{
+		title: 'Vai trò & Quyền',
+		url: '/admin/roles',
+		icon: Settings,
+	},
+	{
+		title: 'Voucher',
+		url: '/admin/vouchers',
+		icon: Tag,
+	},
+	{
+		title: 'Đơn hàng',
+		url: '/admin/orders',
 		icon: Calendar,
 	},
 	{
-		title: 'Search',
-		url: '#',
+		title: 'Sản phẩm',
+		url: '/admin/products',
 		icon: Search,
 	},
 	{
-		title: 'Wallet',
-		url: '#',
+		title: 'Khuyến mãi',
+		url: '/admin/promotions',
+		icon: Percent,
+	},
+	{
+		title: 'Ví',
+		url: '/admin/wallet',
 		icon: Wallet,
 	},
 	{
-		title: 'Settings',
-		url: '#',
+		title: 'Quản lý Kho',
+		url: '/admin/inventory',
+		icon: Package,
+	},
+	{
+		title: 'FAQ',
+		url: '/admin/faqs',
+		icon: HelpCircle,
+	},
+	{
+		title: 'Thông báo',
+		url: '/admin/announcements',
+		icon: Bell,
+	},
+	{
+		title: 'Cài đặt',
+		url: '/admin/settings',
 		icon: Settings,
 	},
 ];

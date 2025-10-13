@@ -7,9 +7,9 @@ import Provider from '@/provider';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import 'react-quill/dist/quill.snow.css';
-import '../globals.css';
 import { UserSidebar } from '@/app/(root)/components/sidebar';
 import Header from '@/app/layout/header';
+import '../globals.css';
 
 const inter = Nunito({ subsets: ['latin'], weight: ['300', '400', '500', '700', '900'] });
 

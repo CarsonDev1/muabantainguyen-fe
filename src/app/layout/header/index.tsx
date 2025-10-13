@@ -26,7 +26,7 @@ const Header = () => {
 				<span className='text-primary-foreground group-hover:text-white font-semibold'>Ví: 0đ</span>
 			</Button>
 			<div className='flex items-center gap-3'>
-				{user && user.role !== 'admin' && <ModeToggle />}
+				<ModeToggle />
 				<Button variant='outline' size='icon'>
 					<Bell />
 				</Button>

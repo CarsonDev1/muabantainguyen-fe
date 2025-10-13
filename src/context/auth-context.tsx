@@ -50,9 +50,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 		} catch (error) {
 			console.error('Failed to fetch current user:', error);
 			setUser(null);
-			// Clear cookies on error
-			localStorage.removeItem('accessToken');
-			localStorage.removeItem('refreshToken');
 		} finally {
 			setIsLoading(false);
 			fetchingRef.current = false;
@@ -65,9 +62,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
 	const logout = useCallback(() => {
 		setUser(null);
-		// Clear cookies
-		localStorage.removeItem('accessToken');
-		localStorage.removeItem('refreshToken');
 		// Reset refs
 		fetchingRef.current = false;
 		initializedRef.current = false;

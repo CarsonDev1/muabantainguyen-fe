@@ -93,9 +93,6 @@ api.interceptors.response.use(
         localStorage.removeItem('accessToken');
         localStorage.removeItem('refreshToken');
 
-        // Dispatch custom event for auth context to handle
-        window.dispatchEvent(new CustomEvent('auth:logout'));
-        window.location.href = '/sign-in';
 
         processQueue(error, null);
         isRefreshing = false;
@@ -133,10 +130,6 @@ api.interceptors.response.use(
         // Refresh failed, clear tokens and redirect to login
         console.log('Token refresh failed. Redirecting to login...');
         localStorage.removeItem('accessToken');
-
-        // Dispatch custom event for auth context to handle
-        window.dispatchEvent(new CustomEvent('auth:logout'));
-        window.location.href = '/sign-in';
 
         processQueue(refreshError, null);
         isRefreshing = false;
