@@ -39,14 +39,13 @@ import { useState, useEffect } from 'react';
 import Image from 'next/image';
 
 const items = [
-	{ title: 'Trang chủ', url: '/', icon: Home },
+	// { title: 'Trang chủ', url: '/', icon: Home },
 	{ title: 'Sản phẩm', url: '/products', icon: Package, hasDropdown: true },
 	{ title: 'Giỏ hàng', url: '/cart', icon: ShoppingCart },
 	{ title: 'Đơn hàng', url: '/orders', icon: CreditCard },
 	{ title: 'Ví của tôi', url: '/wallet', icon: Wallet },
 	{ title: 'Tài nguyên đã mua', url: '/resources', icon: Download },
 	{ title: 'FAQ', url: '/faq', icon: HelpCircle },
-	{ title: 'Cài đặt', url: '/settings', icon: Settings },
 ];
 
 export function UserSidebar() {
@@ -209,12 +208,9 @@ export function UserSidebar() {
 
 								<div className='flex-1 min-w-0'>
 									<Link href={`/${category.slug}`} className='block'>
-										<div className='flex items-center justify-between'>
+										<div className='flex items-center justify-between py-0.5'>
 											<span className='font-medium truncate'>{category.name}</span>
 										</div>
-										<p className='text-xs text-slate-400 dark:text-gray-500 truncate'>
-											/{category.slug}
-										</p>
 									</Link>
 								</div>
 							</div>
@@ -359,9 +355,9 @@ export function UserSidebar() {
 
 					{/* Navigation Menu */}
 					<SidebarGroup>
-						<SidebarGroupLabel className='text-xs font-semibold text-slate-400 dark:text-gray-500 uppercase tracking-wider mb-3 px-2'>
+						{/* <SidebarGroupLabel className='text-xs font-semibold text-slate-400 dark:text-gray-500 uppercase tracking-wider mb-3 px-2'>
 							Menu chính
-						</SidebarGroupLabel>
+						</SidebarGroupLabel> */}
 						<SidebarGroupContent>
 							<SidebarMenu className='space-y-1'>
 								{items.map((item) => {

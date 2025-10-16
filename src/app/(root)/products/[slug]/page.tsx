@@ -118,12 +118,7 @@ function ProductDetailContent({ product, productCategory }: { product: any; prod
 
 				{/* Product Info */}
 				<div className='space-y-6'>
-					<div>
-						<h1 className='text-3xl font-bold text-gray-900 dark:text-white mb-2'>{product.name}</h1>
-						<p className='text-sm text-gray-600 dark:text-gray-400'>
-							Thuộc danh mục: <span className='font-medium'>{productCategory?.name}</span>
-						</p>
-					</div>
+					<h1 className='text-3xl font-bold text-gray-900 dark:text-white mb-2'>{product.name}</h1>
 
 					<div className='space-y-2'>
 						<div className='flex items-center space-x-2'>

@@ -18,13 +18,7 @@ const Header = () => {
 	const { user, logout } = useAuth();
 	return (
 		<header className='flex items-center justify-between w-full pl-3 px-10 py-3'>
-			<Button
-				className='flex group group-hover:text-white items-stretch gap-1 bg-primary text-primary-foreground hover:bg-primary/80 group-hover:bg-primary/80'
-				variant='ghost'
-			>
-				<Wallet className='text-primary-foreground group-hover:text-white' />
-				<span className='text-primary-foreground group-hover:text-white font-semibold'>Ví: 0đ</span>
-			</Button>
+			<span> </span>
 			<div className='flex items-center gap-3'>
 				<ModeToggle />
 				<Button variant='outline' size='icon'>

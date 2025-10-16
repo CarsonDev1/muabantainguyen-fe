@@ -8,6 +8,7 @@ export interface Announcement {
   is_active: boolean;
   created_at: string;
   updated_at: string;
+  announcements?: any[];
 }
 
 export interface CreateAnnouncementData {

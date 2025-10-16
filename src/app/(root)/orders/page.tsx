@@ -20,6 +20,9 @@ import {
 	Loader2,
 	AlertCircle,
 	Receipt,
+	Sparkles,
+	Calendar,
+	DollarSign,
 } from 'lucide-react';
 import Link from 'next/link';
 import { formatCurrency } from '@/utils/format-currency';
@@ -35,33 +38,39 @@ function StatsCard({
 	value,
 	subValue,
 	trend,
-	colorClass,
+	isPrimary,
 }: {
 	icon: any;
 	label: string;
 	value: string | number;
 	subValue?: string;
 	trend?: string;
-	colorClass?: string;
+	isPrimary?: boolean;
 }) {
 	return (
-		<Card>
-			<CardContent className='pt-6'>
-				<div className='flex items-center justify-between'>
-					<div className='flex items-center gap-3'>
-						<div className={`p-3 rounded-lg ${colorClass || 'bg-blue-100 dark:bg-blue-900/30'}`}>
-							<Icon className={`w-5 h-5 ${colorClass ? '' : 'text-blue-600 dark:text-blue-400'}`} />
+		<Card className='overflow-hidden hover:shadow-xl transition-all duration-300 border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 group'>
+			<CardContent className='pt-6 relative'>
+				<div className='relative flex items-center justify-between'>
+					<div className='flex items-center gap-3 sm:gap-4'>
+						<div
+							className={`p-3 sm:p-4 rounded-2xl shadow-lg ${
+								isPrimary ? 'bg-blue-600 dark:bg-blue-500' : 'bg-gray-600 dark:bg-gray-700'
+							}`}
+						>
+							<Icon className='w-5 h-5 sm:w-6 sm:h-6 text-white' />
 						</div>
 						<div>
-							<p className='text-sm text-gray-600 dark:text-gray-400'>{label}</p>
-							<p className='text-2xl font-bold text-gray-900 dark:text-white'>{value}</p>
-							{subValue && <p className='text-xs text-gray-500 mt-1'>{subValue}</p>}
+							<p className='text-xs sm:text-sm text-gray-600 dark:text-gray-400 font-medium mb-1'>
+								{label}
+							</p>
+							<p className='text-2xl sm:text-3xl font-black text-gray-900 dark:text-white'>{value}</p>
+							{subValue && <p className='text-xs text-gray-500 dark:text-gray-400 mt-1'>{subValue}</p>}
 						</div>
 					</div>
 					{trend && (
-						<div className='flex items-center gap-1 text-green-600'>
-							<TrendingUp className='w-4 h-4' />
-							<span className='text-sm font-medium'>{trend}</span>
+						<div className='flex items-center gap-1 bg-blue-50 dark:bg-blue-900/20 px-2.5 py-1 rounded-lg'>
+							<TrendingUp className='w-3.5 h-3.5 text-blue-600 dark:text-blue-400' />
+							<span className='text-xs font-bold text-blue-600 dark:text-blue-400'>{trend}</span>
 						</div>
 					)}
 				</div>
@@ -74,17 +83,17 @@ function OrderStatusBadge({ status }: { status: string }) {
 	const statusConfig = {
 		pending: {
 			label: 'Chờ thanh toán',
-			color: 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400',
+			color: 'bg-gray-600 dark:bg-gray-700',
 			icon: Clock,
 		},
 		paid: {
 			label: 'Đã thanh toán',
-			color: 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400',
+			color: 'bg-blue-600 dark:bg-blue-500',
 			icon: CheckCircle,
 		},
 		refunded: {
 			label: 'Đã hoàn tiền',
-			color: 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400',
+			color: 'bg-gray-500 dark:bg-gray-600',
 			icon: XCircle,
 		},
 	};
@@ -93,10 +102,12 @@ function OrderStatusBadge({ status }: { status: string }) {
 	const Icon = config.icon;
 
 	return (
-		<Badge className={`${config.color} flex items-center gap-1`} variant='outline'>
-			<Icon className='w-3 h-3' />
-			{config.label}
-		</Badge>
+		<div
+			className={`${config.color} text-white px-3 py-1.5 rounded-xl flex items-center gap-1.5 shadow-md font-semibold text-xs sm:text-sm`}
+		>
+			<Icon className='w-3.5 h-3.5 sm:w-4 sm:h-4' />
+			<span>{config.label}</span>
+		</div>
 	);
 }
 
@@ -105,17 +116,14 @@ function PaymentMethodBadge({ method }: { method: string }) {
 		wallet: {
 			label: 'Ví điện tử',
 			icon: Wallet,
-			color: 'text-blue-600 dark:text-blue-400',
 		},
 		sepay: {
 			label: 'SePay',
 			icon: CreditCard,
-			color: 'text-purple-600 dark:text-purple-400',
 		},
 		momo: {
 			label: 'MoMo',
 			icon: CreditCard,
-			color: 'text-pink-600 dark:text-pink-400',
 		},
 	};
 
@@ -123,54 +131,82 @@ function PaymentMethodBadge({ method }: { method: string }) {
 	const Icon = config.icon;
 
 	return (
-		<div className={`flex items-center gap-1 ${config.color}`}>
-			<Icon className='w-4 h-4' />
-			<span className='text-sm font-medium'>{config.label}</span>
+		<div className='flex items-center gap-1.5 bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-white px-3 py-1.5 rounded-lg'>
+			<Icon className='w-3.5 h-3.5 sm:w-4 sm:h-4' />
+			<span className='text-xs sm:text-sm font-semibold'>{config.label}</span>
 		</div>
 	);
 }
 
 function OrderCard({ order }: { order: Order }) {
 	return (
-		<Card className='hover:shadow-md transition-shadow'>
-			<CardContent className='pt-6'>
+		<Card className='hover:shadow-2xl transition-all duration-300 border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 overflow-hidden group'>
+			{/* Top colored bar */}
+			<div className={`h-1.5 ${order.status === 'paid' ? 'bg-blue-600' : 'bg-gray-600'}`}></div>
+
+			<CardContent className='pt-5 sm:pt-6'>
 				<div className='space-y-4'>
 					{/* Header */}
-					<div className='flex items-start justify-between'>
-						<div>
-							<div className='flex items-center gap-2 mb-1'>
-								<Receipt className='w-4 h-4 text-gray-400' />
-								<span className='text-sm text-gray-500'>#{order.id.slice(0, 8).toUpperCase()}</span>
+					<div className='flex items-start justify-between gap-3'>
+						<div className='flex-1'>
+							<div className='flex items-center gap-2 mb-2'>
+								<div className='bg-gray-100 dark:bg-gray-700 p-2 rounded-lg'>
+									<Receipt className='w-4 h-4 text-gray-600 dark:text-gray-400' />
+								</div>
+								<div>
+									<span className='text-xs sm:text-sm font-bold text-gray-900 dark:text-white block'>
+										#{order.id.slice(0, 8).toUpperCase()}
+									</span>
+									<div className='flex items-center gap-1 mt-0.5'>
+										<Calendar className='w-3 h-3 text-gray-400' />
+										<span className='text-xs text-gray-500 dark:text-gray-400'>
+											{formatDate(order.created_at)}
+										</span>
+									</div>
+								</div>
 							</div>
-							<p className='text-xs text-gray-400'>{formatDate(order.created_at)}</p>
 						</div>
 						<OrderStatusBadge status={order.status} />
 					</div>
 
 					{/* Content */}
-					<div className='flex items-center justify-between'>
-						<div>
-							<p className='text-sm text-gray-600 dark:text-gray-400 mb-1'>Tổng tiền</p>
-							<p className='text-xl font-bold text-gray-900 dark:text-white'>
-								{formatCurrency(parseFloat(order.total_amount.toString()))}
-							</p>
+					<div className='bg-gray-50 dark:bg-gray-700/50 rounded-xl p-4 space-y-3'>
+						<div className='flex items-center justify-between'>
+							<div>
+								<p className='text-xs text-gray-600 dark:text-gray-400 font-medium mb-1'>
+									Tổng thanh toán
+								</p>
+								<div className='flex items-baseline gap-1'>
+									<DollarSign className='w-4 h-4 text-gray-400' />
+									<p className='text-xl sm:text-2xl font-black text-blue-600 dark:text-blue-400'>
+										{formatCurrency(parseFloat(order.total_amount.toString()))}
+									</p>
+								</div>
+							</div>
+							<PaymentMethodBadge method={order.payment_method} />
 						</div>
-						<PaymentMethodBadge method={order.payment_method} />
 					</div>
 
 					{/* Actions */}
-					<div className='flex gap-2 pt-2 border-t border-gray-100 dark:border-gray-800'>
+					<div className='flex gap-2 pt-2'>
 						<Link href={`/orders/${order.id}`} className='flex-1'>
-							<Button variant='outline' className='w-full' size='sm'>
-								Chi tiết
-								<ArrowRight className='w-4 h-4 ml-2' />
+							<Button
+								variant='outline'
+								className='w-full h-10 sm:h-11 border-2 border-gray-300 dark:border-gray-600 rounded-xl font-semibold hover:bg-gray-50 dark:hover:bg-gray-700 transition-all group/btn'
+								size='sm'
+							>
+								<span>Chi tiết</span>
+								<ArrowRight className='w-4 h-4 ml-2 group-hover/btn:translate-x-1 transition-transform' />
 							</Button>
 						</Link>
 
 						{order.status === 'pending' && (
 							<Link href={`/orders/${order.id}`} className='flex-1'>
-								<Button className='w-full' size='sm'>
-									Thanh toán ngay
+								<Button
+									className='w-full h-10 sm:h-11 bg-blue-600 hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 rounded-xl font-semibold shadow-lg transition-all'
+									size='sm'
+								>
+									Thanh toán
 								</Button>
 							</Link>
 						)}
@@ -190,15 +226,17 @@ function EmptyOrders({ status }: { status?: string }) {
 	};
 
 	return (
-		<div className='text-center py-16'>
-			<Package className='w-16 h-16 text-gray-300 dark:text-gray-600 mx-auto mb-4' />
-			<h3 className='text-lg font-semibold text-gray-900 dark:text-white mb-2'>
+		<div className='text-center py-12 sm:py-20'>
+			<div className='bg-gray-100 dark:bg-gray-800 w-20 h-20 sm:w-24 sm:h-24 rounded-3xl flex items-center justify-center mx-auto mb-6 shadow-lg'>
+				<Package className='w-10 h-10 sm:w-12 sm:h-12 text-gray-400 dark:text-gray-500' />
+			</div>
+			<h3 className='text-lg sm:text-xl font-bold text-gray-900 dark:text-white mb-2'>
 				{messages[status as keyof typeof messages] || messages.all}
 			</h3>
-			<p className='text-gray-500 dark:text-gray-400 mb-6'>Hãy bắt đầu mua sắm ngay!</p>
+			<p className='text-sm sm:text-base text-gray-600 dark:text-gray-400 mb-6'>Hãy bắt đầu mua sắm ngay!</p>
 			<Link href='/'>
-				<Button>
-					<ShoppingBag className='w-4 h-4 mr-2' />
+				<Button className='h-11 sm:h-12 px-6 bg-blue-600 hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 rounded-xl shadow-lg font-semibold'>
+					<ShoppingBag className='w-4 h-4 sm:w-5 sm:h-5 mr-2' />
 					Khám phá sản phẩm
 				</Button>
 			</Link>
@@ -230,11 +268,22 @@ export default function OrdersPage() {
 		return (
 			<div className='min-h-screen bg-gray-50 dark:bg-gray-900 flex items-center justify-center'>
 				<div className='text-center'>
-					<Package className='w-16 h-16 text-gray-400 mx-auto mb-4' />
-					<h2 className='text-xl font-semibold text-gray-900 dark:text-white mb-2'>Vui lòng đăng nhập</h2>
-					<p className='text-gray-600 dark:text-gray-400 mb-6'>Bạn cần đăng nhập để xem đơn hàng</p>
+					<div className='bg-blue-600 dark:bg-blue-500 w-20 h-20 sm:w-24 sm:h-24 rounded-3xl flex items-center justify-center mx-auto mb-6 shadow-2xl'>
+						<Package className='w-10 h-10 sm:w-12 sm:h-12 text-white' />
+					</div>
+					<h2 className='text-xl sm:text-2xl font-bold text-gray-900 dark:text-white mb-3'>
+						Vui lòng đăng nhập
+					</h2>
+					<p className='text-sm sm:text-base text-gray-600 dark:text-gray-400 mb-6'>
+						Bạn cần đăng nhập để xem đơn hàng
+					</p>
 					<Link href='/sign-in'>
-						<Button size='lg'>Đăng nhập</Button>
+						<Button
+							size='lg'
+							className='h-12 sm:h-14 px-8 bg-blue-600 hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 rounded-xl shadow-lg font-bold text-base'
+						>
+							Đăng nhập ngay
+						</Button>
 					</Link>
 				</div>
 			</div>
@@ -252,86 +301,110 @@ export default function OrdersPage() {
 
 	return (
 		<div className='min-h-screen bg-gray-50 dark:bg-gray-900'>
-			<div className='max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8'>
+			<div className='mx-auto'>
 				{/* Header */}
-				<div className='mb-8'>
-					<h1 className='text-3xl font-bold text-gray-900 dark:text-white mb-2'>Đơn hàng của tôi</h1>
-					<p className='text-gray-600 dark:text-gray-400'>Quản lý và theo dõi đơn hàng của bạn</p>
+				<div className='mb-6 sm:mb-8 lg:mb-10'>
+					<div className='flex items-center gap-3 sm:gap-4 mb-3'>
+						<div className='bg-blue-600 dark:bg-blue-500 p-2.5 sm:p-3 rounded-2xl shadow-lg'>
+							<ShoppingBag className='w-6 h-6 sm:w-7 sm:h-7 text-white' />
+						</div>
+						<div>
+							<h1 className='text-2xl sm:text-3xl lg:text-4xl font-black text-gray-900 dark:text-white'>
+								Đơn hàng của tôi
+							</h1>
+							<p className='text-sm sm:text-base text-gray-600 dark:text-gray-400 mt-1'>
+								Quản lý và theo dõi đơn hàng của bạn
+							</p>
+						</div>
+					</div>
 				</div>
 
 				{/* Stats */}
 				{statsLoading ? (
-					<div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8'>
+					<div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 lg:gap-5 mb-6 sm:mb-8'>
 						{[1, 2, 3, 4].map((i) => (
-							<Card key={i}>
+							<Card key={i} className='border-0'>
 								<CardContent className='pt-6'>
 									<div className='animate-pulse space-y-3'>
-										<div className='h-12 bg-gray-200 dark:bg-gray-700 rounded' />
-										<div className='h-8 bg-gray-200 dark:bg-gray-700 rounded w-2/3' />
+										<div className='h-12 sm:h-14 bg-gray-200 dark:bg-gray-700 rounded-xl' />
+										<div className='h-8 bg-gray-200 dark:bg-gray-700 rounded-lg w-2/3' />
 									</div>
 								</CardContent>
 							</Card>
 						))}
 					</div>
 				) : stats ? (
-					<div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8'>
-						<StatsCard
-							icon={ShoppingBag}
-							label='Tổng đơn hàng'
-							value={stats.total_orders}
-							colorClass='bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400'
-						/>
-						<StatsCard
-							icon={Clock}
-							label='Chờ thanh toán'
-							value={stats.pending_orders}
-							colorClass='bg-yellow-100 dark:bg-yellow-900/30 text-yellow-600 dark:text-yellow-400'
-						/>
-						<StatsCard
-							icon={CheckCircle}
-							label='Đã thanh toán'
-							value={stats.paid_orders}
-							colorClass='bg-green-100 dark:bg-green-900/30 text-green-600 dark:text-green-400'
-						/>
+					<div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 lg:gap-5 mb-6 sm:mb-8'>
+						<StatsCard icon={ShoppingBag} label='Tổng đơn hàng' value={stats.total_orders} isPrimary />
+						<StatsCard icon={Clock} label='Chờ thanh toán' value={stats.pending_orders} />
+						<StatsCard icon={CheckCircle} label='Đã thanh toán' value={stats.paid_orders} isPrimary />
 						<StatsCard
 							icon={Wallet}
 							label='Tổng chi tiêu'
 							value={formatCurrency(stats.total_spent)}
 							subValue={`${stats.wallet_payments} đơn qua ví`}
-							colorClass='bg-purple-100 dark:bg-purple-900/30 text-purple-600 dark:text-purple-400'
 						/>
 					</div>
 				) : null}
 
 				{/* Orders List */}
-				<Card>
-					<CardHeader>
-						<CardTitle>Danh sách đơn hàng</CardTitle>
+				<Card className='border border-gray-200 dark:border-gray-700 shadow-xl bg-white dark:bg-gray-800'>
+					<CardHeader className='pb-4 sm:pb-6'>
+						<div className='flex items-center gap-2'>
+							<Receipt className='w-5 h-5 text-blue-600 dark:text-blue-400' />
+							<CardTitle className='text-xl sm:text-2xl font-bold'>Danh sách đơn hàng</CardTitle>
+						</div>
 					</CardHeader>
 					<CardContent>
 						<Tabs value={activeTab} onValueChange={setActiveTab}>
-							<TabsList className='grid w-full grid-cols-4 mb-6'>
-								<TabsTrigger value='all'>Tất cả ({orders.length})</TabsTrigger>
-								<TabsTrigger value='pending'>
-									Chờ thanh toán ({orders.filter((o) => o.status === 'pending').length})
+							<TabsList className='grid w-full grid-cols-2 sm:grid-cols-4 mb-6 bg-gray-100 dark:bg-gray-700 p-1 rounded-xl h-auto gap-1'>
+								<TabsTrigger
+									value='all'
+									className='rounded-lg data-[state=active]:bg-blue-600 data-[state=active]:text-white data-[state=active]:shadow-lg font-semibold text-xs sm:text-sm py-2.5'
+								>
+									<span className='hidden sm:inline'>Tất cả</span>
+									<span className='sm:hidden'>Tất cả</span>
+									<span className='ml-1'>({orders.length})</span>
 								</TabsTrigger>
-								<TabsTrigger value='paid'>
-									Đã thanh toán ({orders.filter((o) => o.status === 'paid').length})
+								<TabsTrigger
+									value='pending'
+									className='rounded-lg data-[state=active]:bg-gray-600 data-[state=active]:text-white data-[state=active]:shadow-lg font-semibold text-xs sm:text-sm py-2.5'
+								>
+									<span className='hidden sm:inline'>Chờ</span>
+									<span className='sm:hidden'>Chờ</span>
+									<span className='ml-1'>
+										({orders.filter((o) => o.status === 'pending').length})
+									</span>
 								</TabsTrigger>
-								<TabsTrigger value='refunded'>
-									Đã hoàn ({orders.filter((o) => o.status === 'refunded').length})
+								<TabsTrigger
+									value='paid'
+									className='rounded-lg data-[state=active]:bg-blue-600 data-[state=active]:text-white data-[state=active]:shadow-lg font-semibold text-xs sm:text-sm py-2.5'
+								>
+									<span className='hidden sm:inline'>Đã TT</span>
+									<span className='sm:hidden'>TT</span>
+									<span className='ml-1'>({orders.filter((o) => o.status === 'paid').length})</span>
+								</TabsTrigger>
+								<TabsTrigger
+									value='refunded'
+									className='rounded-lg data-[state=active]:bg-gray-600 data-[state=active]:text-white data-[state=active]:shadow-lg font-semibold text-xs sm:text-sm py-2.5'
+								>
+									<span className='hidden sm:inline'>Hoàn</span>
+									<span className='sm:hidden'>Hoàn</span>
+									<span className='ml-1'>
+										({orders.filter((o) => o.status === 'refunded').length})
+									</span>
 								</TabsTrigger>
 							</TabsList>
 
 							{ordersLoading ? (
 								<div className='space-y-4'>
 									{[1, 2, 3].map((i) => (
-										<Card key={i}>
+										<Card key={i} className='border-0'>
 											<CardContent className='pt-6'>
 												<div className='animate-pulse space-y-3'>
-													<div className='h-4 bg-gray-200 dark:bg-gray-700 rounded w-1/4' />
-													<div className='h-8 bg-gray-200 dark:bg-gray-700 rounded' />
-													<div className='h-4 bg-gray-200 dark:bg-gray-700 rounded w-1/2' />
+													<div className='h-4 bg-gray-200 dark:bg-gray-700 rounded-lg w-1/4' />
+													<div className='h-8 bg-gray-200 dark:bg-gray-700 rounded-lg' />
+													<div className='h-4 bg-gray-200 dark:bg-gray-700 rounded-lg w-1/2' />
 												</div>
 											</CardContent>
 										</Card>
@@ -340,7 +413,7 @@ export default function OrdersPage() {
 							) : filteredOrders.length === 0 ? (
 								<EmptyOrders status={activeTab} />
 							) : (
-								<div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4'>
+								<div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5'>
 									{filteredOrders.map((order) => (
 										<OrderCard key={order.id} order={order} />
 									))}

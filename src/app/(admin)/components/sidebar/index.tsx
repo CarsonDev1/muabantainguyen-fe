@@ -46,7 +46,6 @@ const items = [
 	{ title: 'Quản lý Kho', url: '/admin/inventory', icon: Package },
 	{ title: 'FAQ', url: '/admin/faqs', icon: HelpCircle },
 	{ title: 'Thông báo', url: '/admin/announcements', icon: Bell },
-	{ title: 'Cài đặt', url: '/admin/settings', icon: Settings },
 ];
 
 export function AppSidebar() {

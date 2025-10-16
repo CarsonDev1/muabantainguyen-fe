@@ -23,6 +23,9 @@ import {
 	Percent,
 } from 'lucide-react';
 import Link from 'next/link';
+import orderService from '@/services/order-service';
+import productsService from '@/services/product-service';
+import { voucherService } from '@/services/voucher-service';
 
 const AdminPage = () => {
 	const { data: usersData } = useQuery({
@@ -30,9 +33,21 @@ const AdminPage = () => {
 		queryFn: () => getUsers({ page: 1, pageSize: 10 }),
 	});
 
-	const { data: settingsData } = useQuery({
-		queryKey: ['admin-settings'],
-		queryFn: getAdminSettings,
+	const { data: ordersData } = useQuery({
+		queryKey: ['admin-orders'],
+		queryFn: () => orderService.getOrders(),
+	});
+
+	const { data: productsData } = useQuery({
+		queryKey: ['products'],
+		queryFn: () => productsService.getAllProducts(),
+		staleTime: 2 * 60 * 1000,
+	});
+
+	const { data: vouchersData } = useQuery({
+		queryKey: ['vouchers'],
+		queryFn: () => voucherService.getVouchers(),
+		staleTime: 2 * 60 * 1000,
 	});
 
 	const stats = [
@@ -45,21 +60,21 @@ const AdminPage = () => {
 		},
 		{
 			title: 'Đơn hàng',
-			value: '0',
+			value: ordersData?.items.length || 0,
 			icon: ShoppingCart,
 			href: '/admin/orders',
 			color: 'bg-green-500',
 		},
 		{
 			title: 'Sản phẩm',
-			value: '0',
+			value: productsData?.total || 0,
 			icon: Package,
 			href: '/admin/products',
 			color: 'bg-purple-500',
 		},
 		{
 			title: 'Voucher',
-			value: '0',
+			value: vouchersData?.vouchers.length || 0,
 			icon: Tag,
 			href: '/admin/vouchers',
 			color: 'bg-orange-500',
@@ -94,13 +109,6 @@ const AdminPage = () => {
 			icon: Bell,
 			href: '/admin/announcements',
 			color: 'bg-pink-500',
-		},
-		{
-			title: 'Cài đặt Website',
-			description: 'Cấu hình website',
-			icon: Settings,
-			href: '/admin/settings',
-			color: 'bg-gray-500',
 		},
 		{
 			title: 'Quản lý Ví',

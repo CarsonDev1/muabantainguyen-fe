@@ -37,7 +37,7 @@ export default function RootLayout({
 							>
 								<UserSidebar />
 								<main className='flex-1 flex flex-col'>
-									<div className='flex items-center p-2 border-b sticky top-0 left-0 z-50 bg-white'>
+									<div className='flex items-center p-2 border-b sticky top-0 left-0 z-50 bg-white dark:bg-gray-900 border-gray-200 dark:border-gray-700'>
 										<SidebarTrigger />
 										<Header />
 									</div>

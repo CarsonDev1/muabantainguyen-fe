@@ -339,7 +339,7 @@ export default function AdminWalletPage() {
 							<TableBody>
 								{deposits.items.map((d: any) => (
 									<TableRow key={d.id}>
-										<TableCell className='font-mono text-xs'>{d.paymentCode}</TableCell>
+										<TableCell className='font-mono text-xs'>{d.payment_code}</TableCell>
 										<TableCell className='font-semibold'>{formatCurrency(d.amount)}</TableCell>
 										<TableCell>
 											<span
@@ -356,9 +356,9 @@ export default function AdminWalletPage() {
 												{d.status}
 											</span>
 										</TableCell>
-										<TableCell>{d.paymentMethod}</TableCell>
+										<TableCell>{d.payment_method}</TableCell>
 										<TableCell className='text-xs'>
-											{d.expiresAt ? new Date(d.expiresAt).toLocaleString() : '-'}
+											{d.expires_at ? new Date(d.expires_at).toLocaleString() : '-'}
 										</TableCell>
 									</TableRow>
 								))}

@@ -190,7 +190,7 @@ export default function AdminInventoryPage() {
 								Thêm hàng loạt
 							</Button>
 						</Link>
-						<Link href='/admin/inventory/products'>
+						<Link href='/admin/inventory/product'>
 							<Button className='w-full' variant='outline'>
 								<Eye className='w-4 h-4 mr-2' />
 								Quản lý sản phẩm
