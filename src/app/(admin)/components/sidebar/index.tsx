@@ -42,7 +42,6 @@ const items = [
 	{ title: 'Voucher', url: '/admin/vouchers', icon: Tag },
 	{ title: 'Đơn hàng', url: '/admin/orders', icon: Calendar },
 	{ title: 'Sản phẩm', url: '/admin/products', icon: Search },
-	{ title: 'Khuyến mãi', url: '/admin/promotions', icon: Percent },
 	{ title: 'Ví', url: '/admin/wallet', icon: Wallet },
 	{ title: 'Quản lý Kho', url: '/admin/inventory', icon: Package },
 	{ title: 'FAQ', url: '/admin/faqs', icon: HelpCircle },

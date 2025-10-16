@@ -25,7 +25,7 @@ export interface Order {
   id: string;
   userId: string;
   status: string;
-  total: number;
+  total_amount: number;
   created_at?: any;
   updated_at?: any;
 }
@@ -61,7 +61,7 @@ export interface BlockUserResponse {
 export interface GetUserOrdersResponse {
   success: boolean;
   message?: string;
-  data: Order[];
+  orders: Order[];
 }
 
 export interface UpdateProfileRequest {

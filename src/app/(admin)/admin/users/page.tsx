@@ -712,9 +712,9 @@ const UsersPage = () => {
 								<Loader2 className='h-6 w-6 animate-spin' />
 								<span className='ml-2'>Đang tải đơn hàng...</span>
 							</div>
-						) : userOrdersData?.data && userOrdersData.data.length > 0 ? (
+						) : userOrdersData?.orders && userOrdersData.orders.length > 0 ? (
 							<div className='space-y-3 max-h-[400px] overflow-y-auto'>
-								{userOrdersData.data.map((order) => (
+								{userOrdersData.orders.map((order) => (
 									<Card key={order.id} className='p-4'>
 										<div className='flex items-center justify-between'>
 											<div>
@@ -724,7 +724,9 @@ const UsersPage = () => {
 												</p>
 											</div>
 											<div className='text-right'>
-												<p className='font-semibold'>{order.total.toLocaleString('vi-VN')}đ</p>
+												<p className='font-semibold'>
+													{order.total_amount.toLocaleString('vi-VN')}đ
+												</p>
 												<Badge variant='outline'>{order.status}</Badge>
 											</div>
 										</div>

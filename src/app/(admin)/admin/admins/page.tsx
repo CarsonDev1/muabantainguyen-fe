@@ -93,7 +93,10 @@ export default function AdminAdminsPage() {
 
 	const openEditDialog = (admin: Admin) => {
 		setSelectedAdmin(admin);
-		setEditRoleId(admin.admin_role_name);
+
+		const foundRole = roles.find((r) => r.name === admin.admin_role_name || r.name === admin.role);
+
+		setEditRoleId(foundRole?.id || '');
 		setIsEditDialogOpen(true);
 	};
 
@@ -171,12 +174,11 @@ export default function AdminAdminsPage() {
 							</div>
 							<div>
 								<Label htmlFor='role'>Vai trò *</Label>
-								<Select
-									value={createForm.adminRoleId}
-									onValueChange={(value) => setCreateForm({ ...createForm, adminRoleId: value })}
-								>
+								<Select value={editRoleId} onValueChange={setEditRoleId}>
 									<SelectTrigger>
-										<SelectValue placeholder='Chọn vai trò' />
+										<SelectValue>
+											{roles.find((r) => r.id === editRoleId)?.display_name || 'Chọn vai trò'}
+										</SelectValue>
 									</SelectTrigger>
 									<SelectContent>
 										{roles.map((role) => (
